@@ -1,0 +1,961 @@
+/* ===========================
+   GLOBAL BASE & TYPOGRAPHY
+=========================== */
+
+body {
+  margin: 0;
+  background: linear-gradient(to bottom, #1a1a1a 0%, #000000 100%);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Shared glowing titles */
+.main-title,
+.about-title,
+.dashboard-title,
+.login-title,
+.load-title,
+.result-title,
+.view-title {
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 50%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter:
+    drop-shadow(0 0 20px rgba(255, 255, 255, 0.5))
+    drop-shadow(0 0 40px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes glowTitle {
+  from {
+    filter:
+      drop-shadow(0 0 20px rgba(255, 255, 255, 0.5))
+      drop-shadow(0 0 40px rgba(255, 255, 255, 0.3));
+  }
+  to {
+    filter:
+      drop-shadow(0 0 30px rgba(255, 255, 255, 0.7))
+      drop-shadow(0 0 60px rgba(255, 255, 255, 0.4));
+  }
+}
+
+/* Only home + about titles have continuous glow */
+.main-title,
+.about-title {
+  animation: glowTitle 3s ease-in-out infinite alternate;
+}
+
+/* Shared subtitle gradient text */
+.main-description,
+.about-description,
+.dashboard-subtitle,
+.view-subtitle,
+.load-description,
+.result-description {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: inherit;
+  background: linear-gradient(135deg, #ffffff 0%, #d0d0d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* Default headings glow (for non-title headings) */
+h1, h2, h3 {
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 255, 255, 0.45))
+    drop-shadow(0 0 35px rgba(255, 255, 255, 0.25));
+}
+
+
+/* ===========================
+   DNA BACKGROUND
+=========================== */
+
+.dna-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background-color: #0a0a0a;
+  overflow: hidden;
+}
+
+/* Moving DNA pattern layer */
+.dna-background::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200%;
+  height: 100%;
+  background-image: url('/dna-pattern.png');
+  background-repeat: repeat;
+  background-size: auto 100%;
+  opacity: 0.25;
+  animation: dnaScroll 30s linear infinite;
+}
+
+@keyframes dnaScroll {
+  0%   { background-position: 0 center; }
+  100% { background-position: 2000px center; }
+}
+
+
+/* ===========================
+   NAVBAR
+=========================== */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 60px;
+}
+
+.logo-img {
+  height: 50px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 20px;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #cccccc;
+}
+
+
+/* ===========================
+   HOME
+=========================== */
+
+.main-content {
+  text-align: center;
+  padding: 50px 60px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: 110px;
+  font-weight: 300;
+  letter-spacing: 12px;
+  margin-bottom: 50px;
+}
+
+.main-description {
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 0 auto 40px auto;
+  max-width: 900px;
+}
+
+/* Primary CTA on home */
+.btn-get-started {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 16px 50px;
+  font-size: 17px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 400;
+  text-decoration: none !important;
+  display: inline-block;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.btn-get-started:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ===========================
+   ABOUT PAGE
+=========================== */
+
+.about-content {
+  min-height: 100vh;
+  padding: 120px 60px 80px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 75px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.about-description {
+  font-size: 22px;
+  line-height: 1.6;
+  margin: 0 auto 70px auto;
+  max-width: 900px;
+  text-align: center;
+}
+
+/* Stats layout */
+.stats-container-new {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 60px;
+  width: 100%;
+}
+
+.stats-left {
+  flex: 0 0 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* Shared card styles + entrance animation */
+.stat-card,
+.stat-card-large {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 45px 35px;
+  backdrop-filter: blur(10px);
+
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUpCard 0.9s ease forwards;
+
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+/* Staggered delays for left stats */
+.stats-left .stat-card:nth-child(1) { animation-delay: 0.10s; }
+.stats-left .stat-card:nth-child(2) { animation-delay: 0.25s; }
+.stats-left .stat-card:nth-child(3) { animation-delay: 0.40s; }
+
+/* Right big card */
+.stats-right {
+  flex: 0 0 460px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 120px;
+}
+
+.stat-card-large {
+  width: 100%;
+  padding: 28px 32px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+  animation-delay: 0.55s;
+}
+
+/* Lift + glow on hover */
+.stat-card:hover,
+.stat-card-large:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes fadeUpCard {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-number {
+  font-size: 58px;
+  font-weight: 300;
+}
+
+.stat-label {
+  font-size: 17px;
+}
+
+/* Accuracy bar + hover animation */
+.accuracy-bar {
+  width: 100%;
+  height: 8px;
+  background: #333;
+  border-radius: 20px;
+  margin-top: 18px;
+  overflow: hidden;
+}
+
+.accuracy-fill {
+  height: 8px;
+  background: #cfcfcf;
+  border-radius: 20px;
+  width: 0%;
+}
+
+/* Animate fill when hovering the card */
+.stat-card:hover .accuracy-fill,
+.stat-card-large:hover .accuracy-fill {
+  animation: fillAccuracy 1.6s ease-out forwards;
+}
+
+@keyframes fillAccuracy {
+  from { width: 0%; }
+  to   { width: 89%; }
+}
+
+.ai-description {
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+
+/* ===========================
+   VIEW REPORT PAGE
+=========================== */
+
+.view-content {
+  padding: 70px 60px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.view-title {
+  font-size: 55px;
+  font-weight: 400;
+}
+
+.view-subtitle {
+  font-size: 18px;
+  color: #d6d6d6;
+  margin-bottom: 50px;
+}
+
+.report-container {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 60px;
+  border-radius: 24px;
+  width: 85%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0 auto;
+}
+
+.report-line {
+  font-size: 24px;
+  line-height: 1.6;
+}
+
+/* Generic fade-up keyframe (can be reused) */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ===========================
+   DASHBOARD PAGE
+=========================== */
+
+.dashboard-content {
+  padding: 30px 60px 40px;
+  margin-top: -40px;
+}
+
+.dashboard-title {
+  font-size: 55px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.dashboard-subtitle {
+  font-size: 18px;
+  color: #d6d6d6;
+  margin: 0 0 40px 0;
+  text-align: center;
+}
+
+/* Layout: main card + side card */
+.dashboard-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* Main card (recent samples) */
+.dashboard-main-card {
+  flex: 1.8;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 30px 36px 80px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.samples-header h2 {
+  font-size: 28px;
+  margin: 0 0 4px 0;
+}
+
+.samples-caption {
+  font-size: 16px;
+  color: #bcbcbc;
+  margin: 0 0 20px 0;
+}
+
+.samples-body {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.samples-empty {
+  position: relative;
+  text-align: center;
+  font-size: 18px;
+  color: #dcdcdc;
+  padding-right: 110px;
+}
+
+/* Side overview card */
+.dashboard-side-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+  padding: 30px 28px 34px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.overview-header h2 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.overview-pill {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  font-size: 12px;
+  border-radius: 50px;
+  letter-spacing: 0.5px;
+}
+
+.overview-subtitle {
+  font-size: 15px;
+  color: #bcbcbc;
+  margin-bottom: 22px;
+}
+
+.overview-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.overview-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-label {
+  font-size: 15px;
+  color: #dcdcdc;
+  margin-bottom: 4px;
+}
+
+.overview-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.overview-value-small {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.overview-caption {
+  font-size: 13px;
+  color: #999;
+  margin-top: 3px;
+}
+
+.overview-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.overview-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.overview-progress-fill {
+  height: 6px;
+  background: #ffffff;
+  border-radius: 10px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+/* Floating action button */
+.fab-button {
+  position: absolute;
+  right: 32px;
+  bottom: 32px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.fab-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.75);
+}
+
+.fab-icon {
+  font-size: 34px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: -2px;
+}
+
+.overview-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 6px;
+}
+
+.overview-kpi {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ===========================
+   LOGIN PAGE
+=========================== */
+
+.login-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 120px 20px;
+  min-height: 100vh;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 50px 45px;
+  width: 430px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
+}
+
+.login-title {
+  font-size: 48px;
+  font-weight: 500;
+}
+
+.login-subtitle {
+  font-size: 18px;
+  color: #cccccc;
+  margin-bottom: 35px;
+}
+
+.login-form {
+  width: 100%;
+  text-align: left;
+}
+
+.login-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Remember me + Forgot password */
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -5px;
+  margin-bottom: 25px;
+  font-size: 15px;
+}
+
+/* Remember me group */
+.remember-section {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Checkbox */
+.remember-section input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #ffffff;
+  margin: 0;
+  display: inline-block;
+  position: relative;
+  top: -2px;
+}
+
+/* Remember me label */
+.remember-label {
+  font-size: 15px;
+  color: #e6e6e6;
+  cursor: pointer;
+  margin-bottom: 0;
+  display: inline-block;
+  user-select: none;
+  line-height: 1;
+}
+
+/* Forgot password link */
+.forgot-password {
+  font-size: 15px;
+  color: #dcdcdc;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: 0.2s ease;
+  position: relative;
+  top: 1px;
+}
+
+.forgot-password:hover {
+  color: #ffffff;
+}
+
+/* Login button */
+.btn-login {
+  width: 100%;
+  padding: 16px 0;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.3s;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.btn-login:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Login footer text */
+.login-footer {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  text-align: center;
+}
+
+.login-footer p {
+  margin: 0;
+  font-size: 15px;
+  color: #cccccc;
+}
+
+
+/* ===========================
+   FOOTER
+=========================== */
+
+.footer {
+  margin-top: 180px;
+  padding: 50px 0;
+  width: 100%;
+  text-align: center;
+}
+
+.footer-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 140px;
+  margin-bottom: 20px;
+}
+
+.footer-item {
+  text-align: left;
+}
+
+.footer-label {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 6px;
+}
+
+.footer-text {
+  font-size: 20px;
+  color: #fff;
+}
+
+.footer-bottom {
+  font-size: 18px;
+  color: #cccccc;
+  margin-top: 10px;
+  opacity: 0.75;
+}
+
+
+/* ===========================
+   LOAD SAMPLE PAGE
+=========================== */
+
+.load-content {
+  padding-top: 80px;
+  padding-bottom: 60px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.load-title {
+  font-size: 70px;
+  font-weight: 400;
+  letter-spacing: 2px;
+}
+
+.load-description {
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 40px;
+}
+
+/* File input row */
+.file-input-wrapper {
+  margin-top: 10px;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+}
+
+.file-path {
+  width: 500px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  border: 1px solid #444;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.file-path:focus {
+  outline: none;
+  border: 1px solid #999;
+}
+
+/* Load page buttons (browse + analyze) */
+.btn-browse,
+.btn-analyze,
+.btn-result {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 400;
+}
+
+.btn-browse {
+    padding: 18px 40px;
+    font-size: 18px;
+    border-radius: 10px;
+}
+
+.btn-analyze {
+    padding: 18px 80px;
+    font-size: 18px;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+.btn-result {
+    padding: 18px 60px;
+    font-size: 18px;
+    border-radius: 10px;
+}
+
+/* Hover effect */
+.btn-browse:hover,
+.btn-analyze:hover,
+.btn-result:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* ===========================
+   RESULT PAGE
+=========================== */
+
+.result-content {
+  padding-top: 150px;
+  padding-bottom: 120px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.result-title {
+  font-size: 80px;
+  font-weight: 400;
+  letter-spacing: 2px;
+}
+
+.result-description {
+  font-size: 22px;
+  font-weight: 300;
+  color: #dcdcdc;
+  margin-bottom: 50px;
+}
+
+.result-buttons {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+
+/* ===========================
+   SHARED BUTTON STYLES
+=========================== */
+
+/* Result page secondary buttons */
+.btn-result {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 18px 60px;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 400;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Download PDF – unified style */
+.btn-download-pdf {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 400;
+
+  padding: 18px 60px;
+  font-size: 18px;
+  border-radius: 10px;
+
+  box-shadow: none;
+  backdrop-filter: none;
+  margin-top: 40px;
+}
+
+/* Shared hover for these buttons */
+.btn-result:hover,
+.btn-download-pdf:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}

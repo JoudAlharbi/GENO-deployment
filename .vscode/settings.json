@@ -1,0 +1,7 @@
+{
+    "terminal.integrated.cwd": "${workspaceFolder}\\backend",
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "terminal.integrated.env.windows": {
+        "PATH": "${workspaceFolder}\\.venv\\Scripts;${env:PATH}"
+    }
+}
