@@ -71,7 +71,8 @@ def create_database_schema():
                     age INTEGER,
                     gender VARCHAR(20),
                     analysis_result TEXT,
-                    pdf_path TEXT
+                    pdf_path TEXT,
+                    saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """,
             
@@ -192,6 +193,46 @@ def drop_all_tables():
         
     except psycopg2.Error as e:
         print(f"Error: {e}")
+        conn.rollback()
+        
+    finally:
+        cur.close()
+        conn.close()
+
+
+def add_saved_date_column():
+    """Add saved_date column to existing Reports table if it doesn't exist"""
+    conn = psycopg2.connect(
+        host=Config.DB_HOST,
+        database=Config.DB_NAME,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD,
+        port=Config.DB_PORT
+    )
+    
+    cur = conn.cursor()
+    
+    try:
+        # Check if column exists
+        cur.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name='reports' AND column_name='saved_date';
+        """)
+        
+        if not cur.fetchone():
+            # Column doesn't exist, add it
+            cur.execute("""
+                ALTER TABLE Reports 
+                ADD COLUMN saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+            """)
+            conn.commit()
+            print("✓ Added saved_date column to Reports table")
+        else:
+            print("✓ saved_date column already exists in Reports table")
+            
+    except psycopg2.Error as e:
+        print(f"Error adding column: {e}")
         conn.rollback()
         
     finally:

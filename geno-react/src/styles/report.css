@@ -1,0 +1,480 @@
+/* Professional Laboratory Report Styles */
+
+.report-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 30px 20px;
+}
+
+.report-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.report-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px 32px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+
+/* Header Section */
+.report-header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.header-content-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  flex-shrink: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.sample-summary-card {
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #eeeeee;
+  padding: 10px 16px;
+  margin-bottom: 18px;
+  margin-top: 20px;
+  padding-top: 10px;
+}
+
+.sample-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.sample-summary-item {
+  flex: 1;
+}
+
+.sample-summary-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #999999;
+  margin-bottom: 4px;
+}
+
+.sample-summary-value {
+  font-size: 10px;
+  color: #111111;
+}
+
+.header-meta-row {
+  line-height: 1.5;
+}
+
+.header-meta-value {
+  font-family: "Courier New", monospace;
+  color: #000000;
+  font-weight: 500;
+}
+
+.report-logo {
+  width: 190px;
+  height: auto;
+  display: block;
+  transform: scale(1.15);
+  transform-origin: left center;
+}
+
+.lab-subtitle {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #777;
+  text-align: center;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  min-width: 220px;
+}
+
+.meta-row {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.meta-label {
+  font-weight: 600;
+}
+
+.meta-value {
+  font-family: "Courier New", monospace;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  min-width: 180px;
+  margin-top: 25px;
+}
+
+.risk-level-box {
+  padding: 10px 24px;
+  border-radius: 4px;
+  border: 1px solid #f35a5a;
+  background-color: #ffe9ea;
+  color: #c52222;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+}
+
+.risk-level-box.low {
+  border: 1px solid #4caf50;
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.risk-level-box .risk-level-caption {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.risk-score-box {
+  padding: 10px 24px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+}
+
+.risk-score-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111111; /* black */
+}
+
+.risk-score-box .risk-score-caption {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #777;
+}
+
+
+/* Sample Summary Card */
+.report-sample-summary-card {
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #eeeeee;
+  padding: 10px 16px;
+  width: 100%;
+}
+
+.report-sample-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.report-sample-summary-item {
+  flex: 1;
+}
+
+.report-sample-summary-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #999999;
+  margin-bottom: 4px;
+}
+
+.report-sample-summary-value {
+  font-size: 10px;
+  color: #111111;
+}
+
+.report-sample-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.report-sample-label {
+  font-size: 8px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.report-sample-value {
+  font-size: 10px;
+  color: #000000;
+  font-family: 'Courier New', monospace;
+}
+
+/* Section Styles */
+.report-section {
+  margin-top: 18px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.report-section:last-of-type {
+  border-bottom: none;
+}
+
+.report-section-label {
+  font-size: 7px;
+  font-weight: 600;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+
+.report-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #222222;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Risk Summary */
+.report-summary-text {
+  font-size: 11px;
+  color: #333333;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Tables */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 9px;
+}
+
+.report-table thead {
+  background-color: #f1f1f1;
+}
+
+.report-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #000000;
+  text-transform: uppercase;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  border: 1px solid #ddd;
+  border-bottom: 2px solid #000000;
+}
+
+.report-table td {
+  padding: 10px 12px;
+  color: #333333;
+  border: 1px solid #ddd;
+}
+
+.report-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.report-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.report-table-gene {
+  font-family: 'Courier New', monospace;
+  color: #000000;
+  font-weight: 500;
+}
+
+.report-table-expression {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.report-table-impact {
+  color: #666666;
+  font-size: 8px;
+}
+
+/* Bullet Lists */
+.report-bullet-list {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.report-bullet-item {
+  font-size: 10px;
+  color: #333333;
+  line-height: 1.8;
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 12px;
+}
+
+.report-bullet-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #666666;
+  font-weight: bold;
+}
+
+.report-bullet-item strong {
+  color: #000000;
+  font-weight: 600;
+}
+
+/* Footer */
+.report-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.report-footer-text {
+  font-size: 8px;
+  color: #666666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.report-footer-text strong {
+  color: #333333;
+  font-weight: 600;
+}
+
+/* Download Button */
+.report-download-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.report-download-button {
+  background-color: #008B8B;
+  color: #ffffff;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.report-download-button:hover:not(:disabled) {
+  background-color: #006666;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.report-download-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media print {
+  .report-page {
+    background-color: #ffffff;
+    padding: 0;
+  }
+  
+  .report-download-container {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .report-header {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  
+  .header-left {
+    width: 100%;
+  }
+  
+  .header-center-meta {
+    width: 100%;
+    padding: 0 10px;
+  }
+  
+  .header-right {
+    align-items: flex-start;
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .report-logo {
+    width: 160px;
+  }
+  
+  .report-sample-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .report-table {
+    font-size: 8px;
+  }
+  
+  .report-table th,
+  .report-table td {
+    padding: 8px;
+  }
+}
+
+/* PDF Download Button */
+.pdf-btn {
+  background: #2e2e2e;
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.25s ease;
+}
+
+.pdf-btn:hover {
+  background: #1b1b1b;
+}
+

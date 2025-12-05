@@ -44,20 +44,14 @@ class DatabaseOperations:
     
     # User Operations-----------------------------------
     @staticmethod
-    def create_user(user_id, email, hashed_password, fullname):
+    def create_user(user_id, hashed_password, fullname):
         query = """
-            INSERT INTO LaboratoryUser (UserID, Email, Password, Fullname)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO LaboratoryUser (UserID, Password, Fullname)
+            VALUES (%s, %s, %s)
         """
         return DatabaseOperations.execute_query(
-            query, (user_id, email, hashed_password, fullname)
+            query, (user_id, hashed_password, fullname)
         )
-    
-    @staticmethod
-    def get_user_by_email(email):
-        query = "SELECT * FROM LaboratoryUser WHERE Email = %s"
-        result = DatabaseOperations.execute_query(query, (email,), fetch=True)
-        return result[0] if result else None
     
     @staticmethod
     def get_user_by_id(user_id):
@@ -72,8 +66,8 @@ class DatabaseOperations:
         query = """
             INSERT INTO Reports 
             (sequence_id, accuracy, variant_info, fullname, patientInfo, 
-             age, gender, analysis_result, pdf_path)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+             age, gender, analysis_result, pdf_path, saved_date)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
         """
         return DatabaseOperations.execute_query(
             query, (sequence_id, accuracy, variant_info, fullname, 

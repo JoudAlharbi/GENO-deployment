@@ -222,11 +222,11 @@ class FileHandler:
                     }
                 
                 # For gene expression files, first row contains sample IDs
-                # First column might be empty or contain a label like "Gene" or "GeneID"
-                # We'll check the data rows for ENSG gene IDs
+                # First column contains gene IDs (can be any format: ENSG, gene names, etc.)
+                # We'll validate that the file has a valid structure with numeric data
                 
-                # Read a few more lines to validate gene ID format
-                gene_id_found = False
+                # Read a few more lines to validate structure
+                valid_data_rows = 0
                 line_count = 0
                 for line in f:
                     line = line.strip()
@@ -237,29 +237,37 @@ class FileHandler:
                     if len(parts) < 2:
                         continue
                     
+                    # First column is gene ID (can be any format)
                     gene_id = parts[0].strip()
-                    # Check if it's an ENSEMBL gene ID
-                    if gene_id.startswith('ENSG'):
-                        gene_id_found = True
-                        # Validate that remaining columns are numeric
-                        try:
-                            for val in parts[1:]:
-                                if val.strip():  # Skip empty values
-                                    float(val.strip())
-                        except ValueError:
-                            return {
-                                'valid': False,
-                                'error': f'Non-numeric value found in count data: {val}'
-                            }
+                    if not gene_id:
+                        continue  # Skip rows with empty first column
+                    
+                    # Validate that remaining columns are numeric
+                    has_numeric_data = False
+                    try:
+                        for val in parts[1:]:
+                            val_stripped = val.strip()
+                            if val_stripped:  # Skip empty values
+                                float(val_stripped)
+                                has_numeric_data = True
+                    except ValueError:
+                        # If we can't convert to float, it's not numeric
+                        # But we'll be lenient - just check if at least one numeric value exists
+                        pass
+                    
+                    # If we found at least one numeric value in this row, it's valid
+                    if has_numeric_data:
+                        valid_data_rows += 1
                     
                     line_count += 1
                     if line_count >= 10:  # Check first 10 data rows
                         break
                 
-                if not gene_id_found:
+                # Require at least one valid data row with numeric values
+                if valid_data_rows == 0:
                     return {
                         'valid': False,
-                        'error': 'No ENSEMBL gene IDs (ENSG...) found in first column'
+                        'error': 'No valid numeric data found in file. Please ensure the file contains gene expression values (numbers) in columns after the first column.'
                     }
                 
                 return {'valid': True}
