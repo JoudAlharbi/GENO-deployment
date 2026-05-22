@@ -11,67 +11,82 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """Lab user login with employee credentials"""
-    data = request.get_json()
-    
-    # Validate input
-    if not data.get('employee_id') or not data.get('password'):
-        return jsonify({'error': 'Employee ID and password required'}), 400
-    
-    # Find user by employee ID
-    query = """
-        SELECT * FROM LaboratoryUser 
-        WHERE EmployeeID = %s OR Email = %s
-    """
-    result = DatabaseOperations.execute_query(
-        query, (data['employee_id'], data['employee_id']), fetch=True
-    )
-    
-    if not result:
-        return jsonify({'error': 'Invalid credentials'}), 401
-    
-    user = result[0]
-    
-    # Verify password
-    if not verify_password(data['password'], user['password']):
-        # Increment the failed login attempts
-        increment_query = """
+    ## added try-catch 
+    try:
+        data = request.get_json()
+        
+        if os.getenv('FLASK_DEBUG_REQUESTS', 'false').lower() == 'true':
+            print(f"Login attempt - Employee ID: {data.get('employee_id') if data else 'None'}")
+        
+        # Validate input
+        if not data or not data.get('employee_id') or not data.get('password'):
+            return jsonify({'error': 'Employee ID and password required'}), 400
+        
+        # Find user by employee ID
+        query = """
+            SELECT * FROM LaboratoryUser 
+            WHERE EmployeeID = %s OR Email = %s
+        """
+        result = DatabaseOperations.execute_query(
+            query, (data['employee_id'], data['employee_id']), fetch=True
+        )
+        
+        if not result:
+            return jsonify({'error': 'Invalid credentials'}), 401
+        
+        user = result[0]
+        
+        # Verify password
+        if not verify_password(data['password'], user['password']):
+            # Increment the failed login attempts
+            increment_query = """
+                UPDATE LaboratoryUser
+                SET FailedLoginAttempts = FailedLoginAttempts + 1
+                WHERE EmployeeID = %s
+            """
+            DatabaseOperations.execute_query(increment_query, (user['employeeid'],))
+            
+            return jsonify({'error': 'Invalid credentials'}), 401
+        
+        # Successful login - reset failed attempts
+        update_query = """
             UPDATE LaboratoryUser
-            SET FailedLoginAttempts = FailedLoginAttempts + 1
+            SET FailedLoginAttempts = 0
             WHERE EmployeeID = %s
         """
-        DatabaseOperations.execute_query(increment_query, (user['employeeid'],))
+        DatabaseOperations.execute_query(update_query, (user['employeeid'],))
         
-        return jsonify({'error': 'Invalid credentials'}), 401
-    
-    # Successful login - reset failed attempts
-    update_query = """
-        UPDATE LaboratoryUser
-        SET FailedLoginAttempts = 0
-        WHERE EmployeeID = %s
-    """
-    DatabaseOperations.execute_query(update_query, (user['employeeid'],))
-    
-    # Generate token
-    #what for?
-    token = generate_token(user['userid'], user['email'])
-    
-    response = {
-        'message': 'Login successful',
-        'token': token,
-        'user': {
-            'user_id': user['userid'],
-            'employee_id': user['employeeid'],
-            'email': user['email'],
-            'fullname': user['fullname'],
+        # Generate token
+        #what for?
+        token = generate_token(user['userid'], user['email'])
+        
+        response = {
+            'message': 'Login successful',
+            'token': token,
+            'user': {
+                'user_id': user['userid'],
+                'employee_id': user['employeeid'],
+                'email': user['email'],
+                'fullname': user['fullname'],
+            }
         }
-    }
-    
-    # Check if first login - require password change
-    if user['isfirstlogin']:
-        response['requires_password_change'] = True
-        response['message'] = 'First login - password change required'
-    
-    return jsonify(response), 200
+        
+        # Check if first login - require password change
+        if user['isfirstlogin']:
+            response['requires_password_change'] = True
+            response['message'] = 'First login - password change required'
+        
+        return jsonify(response), 200
+    except Exception as e:
+        if os.getenv('FLASK_DEBUG', 'false').lower() == 'true':
+            print(f"Login error: {str(e)}")
+            import traceback
+            traceback.print_exc()
+        from utils.db_connection import format_db_error_for_api
+        message, status = format_db_error_for_api(e)
+        if status == 503:
+            return jsonify({'error': message, 'code': 'database_unavailable'}), status
+        return jsonify({'error': 'Login failed. Please try again later.'}), 500
 
 
 @auth_bp.route('/change-password', methods=['POST'])
@@ -125,4 +140,5 @@ def change_password():
         DatabaseOperations.execute_query(query, (new_hashed, payload['user_id']))
         return jsonify({'message': 'Password changed successfully'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        from utils.safe_errors import safe_error_message
+        return jsonify({'error': safe_error_message(e)}), 500

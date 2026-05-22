@@ -1,16 +1,11 @@
-import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import Config
+import sys
+from pathlib import Path
 
-def get_db_connection():
-    """Create and return a database connection"""
-    return psycopg2.connect(
-        host=Config.DB_HOST,
-        database=Config.DB_NAME,
-        user=Config.DB_USER,
-        password=Config.DB_PASSWORD,
-        port=Config.DB_PORT
-    )
+backend_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(backend_dir))
+
+from utils.db_connection import get_db_connection  # noqa: E402
 
 class DatabaseOperations:
     
@@ -19,10 +14,14 @@ class DatabaseOperations:
     @staticmethod
     def execute_query(query, params=None, fetch=False):
         """Execute a query and optionally fetch results"""
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor) #better than default cursor, shows column names
-        
+        conn = None
+        cur = None
         try:
+            conn = get_db_connection()
+        ## edited 5 dec 2025
+            cur = conn.cursor(cursor_factory=RealDictCursor) #better than default cursor, shows column names
+        ## end edit
+        
             cur.execute(query, params)
             
             if fetch:
@@ -37,9 +36,24 @@ class DatabaseOperations:
                 return True
                 
         except Exception as e:
-            conn.rollback()
-            cur.close()
-            conn.close()
+            if conn:
+                try:
+                    conn.rollback()
+                except:
+                    pass
+            if cur:
+                try:
+                    cur.close()
+                except:
+                    pass
+            if conn:
+                try:
+                    conn.close()
+                except:
+                    pass
+            # Log the error for debugging
+            print(f"Database error in execute_query: {str(e)}")
+            print(f"Query: {query[:100]}...")  # Print first 100 chars of query
             raise e
     
     # User Operations-----------------------------------

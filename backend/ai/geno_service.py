@@ -66,14 +66,34 @@ def predict_geno(df, sequence_id=None, user_id=None):
     Returns:
         dict with prediction results and detailed report
     """
+    # ========== DEBUG: CONFIRM FUNCTION IS CALLED ==========
+    print("=" * 80)
+    print(f"[GENO] predict_geno() CALLED")
+    print(f"[GENO] sequence_id: {sequence_id}")
+    print(f"[GENO] user_id: {user_id}")
+    if df is not None:
+        print(f"[GENO] DataFrame shape: {df.shape}")
+        print(f"[GENO] DataFrame columns count: {len(df.columns)}")
+        print(f"[GENO] DataFrame index: {df.index.tolist()[:5]}...")
+    else:
+        print(f"[GENO] DataFrame is None!")
+    print("=" * 80)
+    # ======================================================
+    
     # Lazy load model on first use
     _ensure_model_loaded()
-    
+    # NEW Update 6 DEC
     # Select only the chosen genes
-    df_selected = df[selected_genes]
+    # Ensure correct ordering of columns exactly like the model was trained
+    df_model = df.reindex(columns=selected_genes, fill_value=0)
 
+    # Convert all values to float
+    df_model = df_model.astype(float)
+
+    # NEW Update 6 DEC
     # Predict probability directly from the model
-    probs = _model.predict_proba(df_selected)[0]
+    # Send full aligned features to pipeline
+    probs = _model.predict_proba(df_model)[0]
     score_raw = float(probs[1])           # Class 1 = addiction risk
 
     # Convert to percentage (no modifications)
@@ -85,9 +105,10 @@ def predict_geno(df, sequence_id=None, user_id=None):
     # =========================================================
     # BUILD DETAILED REPORT
     # =========================================================
-    
+
+    # NEW Update 6 DEC
     # Get the sample row for gene expression analysis
-    sample_row = df_selected.iloc[0]
+    sample_row = df_model.iloc[0]
     
     # Get genes that actually contributed to the risk prediction
     # Only show genes if risk score indicates actual addiction risk (> 1%)
@@ -95,26 +116,45 @@ def predict_geno(df, sequence_id=None, user_id=None):
     
     if score_percent > 1.0:  # Only show genes if there's meaningful risk
         try:
-            # Get the classifier from the pipeline
-            classifier = _model.named_steps['classifier']
-            selector = _model.named_steps['selector']
+            #NEW Update 6 DEC
+            # Get the scaler and classifier from the pipeline
+            # Model structure: scaler (StandardScaler) -> enet (LogisticRegression)
+            print(f"[GENO] Model named_steps: {list(_model.named_steps.keys())}")
+            print(f"[GENO] Model type: {type(_model)}")
+            
+            # Check if model has the expected structure
+            if 'scaler' not in _model.named_steps:
+                raise KeyError(f"Model missing 'scaler' step. Available steps: {list(_model.named_steps.keys())}")
+            if 'enet' not in _model.named_steps:
+                raise KeyError(f"Model missing 'enet' step. Available steps: {list(_model.named_steps.keys())}")
+            
             scaler = _model.named_steps['scaler']
+            classifier = _model.named_steps['enet']
             
             # Get coefficients (these indicate contribution to risk)
-            coefficients = classifier.coef_[0]  # Shape: (n_selected_features,)
+            # Since there's no selector, use all coefficients directly
+            coefficients = classifier.coef_[0]  # Shape: (n_features,)
             
-            # Get which features were selected by SelectKBest
-            selected_mask = selector.get_support()
-            selected_gene_names = [gene for gene, selected in zip(selected_genes, selected_mask) if selected]
+            # Get the scaled values for all features
+            sample_scaled = scaler.transform(df_model)[0]  # Shape: (n_features,)
             
-            # Get the scaled values for selected features
-            sample_scaled = scaler.transform(df_selected)[0]
-            sample_scaled_selected = sample_scaled[selected_mask]
+            # Use all genes (no selector in this model)
+            # selected_genes contains all gene names in the correct order matching the model
+            # df_model was reindexed with selected_genes, so they should match
+            all_gene_names = selected_genes  # Use the gene list that matches model training order
+            
+            # Ensure dimensions match
+            if len(all_gene_names) != len(coefficients) or len(all_gene_names) != len(sample_scaled):
+                raise ValueError(
+                    f"Dimension mismatch: genes={len(all_gene_names)}, "
+                    f"coefficients={len(coefficients)}, "
+                    f"scaled={len(sample_scaled)}"
+                )
             
             # Calculate contribution: coefficient * scaled_expression_value
             # Higher absolute contribution = more important for this prediction
             gene_contributions = []
-            for i, (gene_name, coef, scaled_val) in enumerate(zip(selected_gene_names, coefficients, sample_scaled_selected)):
+            for gene_name, coef, scaled_val in zip(all_gene_names, coefficients, sample_scaled):
                 # Contribution is the product of coefficient and scaled value
                 # Positive contribution increases risk, negative decreases it
                 contribution = coef * scaled_val
@@ -123,14 +163,15 @@ def predict_geno(df, sequence_id=None, user_id=None):
                     'coefficient': float(coef),
                     'scaled_expression': float(scaled_val),
                     'contribution': float(contribution),
-                    'raw_expression': float(sample_row[gene_name])
+                    'raw_expression': float(sample_row.get(gene_name, 0))
                 })
             
             # Sort by absolute contribution (genes that matter most for this prediction)
             gene_contributions.sort(key=lambda x: abs(x['contribution']), reverse=True)
             
             # Take top 10 genes that contributed most to the risk prediction
-            for gene_info in gene_contributions[:10]:
+            top_count = min(10, len(gene_contributions))
+            for gene_info in gene_contributions[:top_count]:
                 # Determine impact based on contribution
                 if gene_info['contribution'] > 0:
                     impact = f"Positive risk contributor (coef: {gene_info['coefficient']:.3f})"
@@ -143,9 +184,16 @@ def predict_geno(df, sequence_id=None, user_id=None):
                     "impact": impact,
                     "contribution": round(gene_info['contribution'], 4)
                 })
+            
+            print(f"[GENO] Successfully populated {len(top_genes)} top genes from {len(gene_contributions)} total genes")
+            if len(top_genes) == 0:
+                print(f"[GENO] WARNING: top_genes is empty after processing! gene_contributions length: {len(gene_contributions)}")
+
         except Exception as e:
             # Fallback: if we can't extract contributions, don't show genes
+            import traceback
             print(f"[WARNING] Could not extract gene contributions: {e}")
+            print(f"[WARNING] Traceback: {traceback.format_exc()}")
             top_genes = []
     else:
         # Risk score too low (< 1%), no addiction-related genes to show
@@ -173,7 +221,8 @@ def predict_geno(df, sequence_id=None, user_id=None):
         "model_name": "geno_enet_pipeline.pkl",
         "model_version": "2.0",
         "total_genes_in_model": len(selected_genes),
-        "genes_analyzed": len(df_selected.columns),
+        #new update 6 DEC
+        "genes_analyzed": len(df_model.columns),
         "risk_level": risk_level,
         "risk_score_percent": score_percent,
         "risk_score_raw": score_raw,
@@ -200,11 +249,62 @@ def predict_geno(df, sequence_id=None, user_id=None):
         }
     }
 
+    # NEW Update 6 DEC
+    # Debug: Verify top_genes is in report before returning
+    print(f"[GENO] predict_geno returning - report.top_genes length: {len(report.get('top_genes', []))}")
+    print(f"[GENO] predict_geno returning - score_percent: {score_percent}, risk_level: {risk_level}")
+
+    #NEW Update 6 DEC
+    analysis_result = {
+    "score_raw": score_raw,
+    "score_percent": score_percent,
+    "risk_level": risk_level,
+    "model_used": "geno_enet_pipeline.pkl",
+    "genes_used": len(selected_genes),
+    "top_genes": report["top_genes"],      # here is the solution for the top genes
+    "bottom_genes": report["bottom_genes"],
+    "report": report
+    }
+
+    # --- SAFE JSON SERIALIZATION FOR GENE ARRAYS ---
+    def _safe_gene_list(items):
+        safe_list = []
+        if not isinstance(items, list):
+            return []
+        for g in items:
+            if not isinstance(g, dict):
+                continue
+            safe_list.append({
+                "gene": g.get("gene"),
+                "expression": float(g.get("expression", 0)),
+                "impact": g.get("impact"),
+                "contribution": float(g.get("contribution", 0))
+            })
+        return safe_list
+
+    report["top_genes"] = _safe_gene_list(report.get("top_genes", []))
+    report["bottom_genes"] = _safe_gene_list(report.get("bottom_genes", []))
+
+    print("DEBUG genes in backend:", report.get("top_genes"), report.get("bottom_genes"))
+    print("DEBUG selected_genes:", selected_genes)
+
     return {
+    "sequence_id": sequence_id,
+    "accuracy": None,
+    "variant_info": None,
+    "fullname": None,
+    "patientInfo": None,
+    "age": None,
+    "gender": None,
+
+    "analysis_result": {
         "score_raw": score_raw,
         "score_percent": score_percent,
         "risk_level": risk_level,
         "model_used": "geno_enet_pipeline.pkl",
         "genes_used": len(selected_genes),
+        "top_genes": report["top_genes"],
+        "bottom_genes": report["bottom_genes"],
         "report": report
     }
+}

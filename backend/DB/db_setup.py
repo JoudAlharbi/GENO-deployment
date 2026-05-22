@@ -163,11 +163,11 @@ def create_database_schema():
 def drop_all_tables():
     """Drop all tables (useful for testing/resetting)"""
     conn = psycopg2.connect(
-        host="localhost", 
-        database="geno", 
-        user="postgres", 
-        password="geno", 
-        port=5432
+        host=Config.DB_HOST,
+        database=Config.DB_NAME,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD,
+        port=Config.DB_PORT
     )
     
     cur = conn.cursor()
@@ -243,11 +243,11 @@ def add_saved_date_column():
 def insert_sample_data():
     """Insert sample data for testing"""
     conn = psycopg2.connect(
-        host="localhost", 
-        database="geno", 
-        user="postgres", 
-        password="geno", 
-        port=5432
+        host=Config.DB_HOST,
+        database=Config.DB_NAME,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD,
+        port=Config.DB_PORT
     )
     
     cur = conn.cursor()

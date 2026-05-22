@@ -1,13 +1,13 @@
 /**
  * API Service for Geno React Frontend
  * Handles all communication with the Flask backend
- * Backend runs on: http://127.0.0.1:5000
  */
 
-const API_BASE_URL = 'http://127.0.0.1:5000';
+import { API_BASE_URL } from '../config/apiBase';
 
-// Log the API URL for debugging
-console.log('API Service initialized with BASE_URL:', API_BASE_URL);
+if (import.meta.env.DEV) {
+  console.info('[GENO] API base:', API_BASE_URL);
+}
 
 /**
  * Get the auth token from storage

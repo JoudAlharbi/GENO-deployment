@@ -168,6 +168,17 @@ def process_genetic_data(file_path, file_id, user_id=None):
     Raises:
         Exception: If processing fails
     """
+    # ========== DEBUG: CONFIRM FUNCTION IS CALLED ==========
+    print("=" * 80)
+    print(f"[AI_PROCESSOR] process_genetic_data() CALLED")
+    print(f"[AI_PROCESSOR] file_path: {file_path}")
+    print(f"[AI_PROCESSOR] file_id: {file_id}")
+    print(f"[AI_PROCESSOR] user_id: {user_id}")
+    import os
+    print(f"[AI_PROCESSOR] file exists: {os.path.exists(file_path) if file_path else False}")
+    print("=" * 80)
+    # ======================================================
+    
     try:
         sequence_id = f"SEQ-{uuid.uuid4().hex[:12].upper()}"
         
@@ -263,35 +274,49 @@ def process_genetic_data(file_path, file_id, user_id=None):
             geno_output = predict_geno(df_for_model, sequence_id=sequence_id, user_id=user_id)
             
             # Build or extend the analysis_result dict with GENO report structure
+            # NOTE: predict_geno() returns {"analysis_result": {"report": ..., "top_genes": ..., ...}}
+            # So we need to access geno_output["analysis_result"] first
+            geno_analysis = geno_output.get("analysis_result", {})
+            geno_report = geno_analysis.get("report", {})
+            
             analysis_result = {}
             
             # Attach full GENO report object
-            analysis_result["report"] = geno_output["report"]
+            analysis_result["report"] = geno_report
             
             # Attach a compact "result" summary used by the frontend
             analysis_result["result"] = {
-                "sequence_id": geno_output["report"]["sample_id"],
-                "laboratory_user_id": geno_output["report"]["laboratory_user_id"],
-                "risk_level": geno_output["risk_level"],
-                "score_percent": geno_output["score_percent"],
-                "model_used": geno_output["model_used"],
-                "genes_used": geno_output["genes_used"],
+                "sequence_id": geno_report.get("sample_id", sequence_id),
+                "laboratory_user_id": geno_report.get("laboratory_user_id", user_id or "LAB-DEMO-001"),
+                "risk_level": geno_analysis.get("risk_level", "LOW"),
+                "score_percent": geno_analysis.get("score_percent", 0),
+                "model_used": geno_analysis.get("model_used", "geno_enet_pipeline.pkl"),
+                "genes_used": geno_analysis.get("genes_used", 0),
             }
             
             # Keep methodology inside analysis_result as well (for Section E)
             if "methodology" not in analysis_result:
-                analysis_result["methodology"] = geno_output["report"].get("methodology", {})
+                analysis_result["methodology"] = geno_report.get("methodology", {})
             
             # Optionally make sure top_genes and bottom_genes exist:
             report_obj = analysis_result["report"]
-            report_obj.setdefault("top_genes", geno_output["report"].get("top_genes", []))
-            report_obj.setdefault("bottom_genes", geno_output["report"].get("bottom_genes", []))
+            # Get top_genes from either analysis_result or report
+            top_genes = geno_analysis.get("top_genes") or geno_report.get("top_genes", [])
+            bottom_genes = geno_analysis.get("bottom_genes") or geno_report.get("bottom_genes", [])
+            report_obj.setdefault("top_genes", top_genes)
+            report_obj.setdefault("bottom_genes", bottom_genes)
             
             # Safe debug log
-            print("[AI] analysis_result.report.top_genes length:",
-                  len(analysis_result.get("report", {}).get("top_genes", [])))
-            print("[AI] analysis_result.report.bottom_genes length:",
-                  len(analysis_result.get("report", {}).get("bottom_genes", [])))
+            top_genes_len = len(analysis_result.get("report", {}).get("top_genes", []))
+            bottom_genes_len = len(analysis_result.get("report", {}).get("bottom_genes", []))
+            print(f"[AI] analysis_result.report.top_genes length: {top_genes_len}")
+            print(f"[AI] analysis_result.report.bottom_genes length: {bottom_genes_len}")
+            if top_genes_len == 0:
+                print(f"[AI] WARNING: top_genes is empty! Checking geno_output...")
+                print(f"[AI] geno_output.report.top_genes length: {len(geno_output.get('report', {}).get('top_genes', []))}")
+                print(f"[AI] geno_output keys: {list(geno_output.keys())}")
+                if 'report' in geno_output:
+                    print(f"[AI] geno_output.report keys: {list(geno_output['report'].keys())}")
             
         except Exception as e:
             # If GENO model fails, fall back to basic structure without gene arrays
@@ -317,7 +342,18 @@ def process_genetic_data(file_path, file_id, user_id=None):
             }
         
         # Convert analysis_result to JSON string for database storage
+        # Debug: Check top_genes before JSON serialization
+        top_genes_before_json = len(analysis_result.get("report", {}).get("top_genes", []))
+        print(f"[AI] Before JSON serialization - top_genes length: {top_genes_before_json}")
+        
         analysis_result_json = json.dumps(analysis_result)
+        
+        # Debug: Verify JSON contains top_genes
+        parsed_back = json.loads(analysis_result_json)
+        top_genes_after_json = len(parsed_back.get("report", {}).get("top_genes", []))
+        print(f"[AI] After JSON serialization - top_genes length: {top_genes_after_json}")
+        if top_genes_before_json != top_genes_after_json:
+            print(f"[AI] ERROR: top_genes lost during JSON serialization!")
         
         result = {
             'sequence_id': sequence_id,

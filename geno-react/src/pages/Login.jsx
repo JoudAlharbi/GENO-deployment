@@ -167,7 +167,7 @@ export default function Login() {
             color: "#888", 
             marginTop: "10px" 
           }}>
-            Demo: Company ID: 444 | Password: 4444
+            Demo: Company ID: DEMO01 | Password: demo123
           </p>
         </div>
       </div>

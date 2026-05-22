@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, send_file
 from utils.file_utils import FileHandler
 from DB.file_operations import FileOperations
 from DB.db_operations import DatabaseOperations
-from utils.auth_utils import verify_token
+from utils.request_auth import get_current_user
 from utils.ai_processor import process_genetic_data
 from utils.pdf_generator import save_pdf_report
 import os
@@ -13,20 +13,10 @@ from pathlib import Path
 backend_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_dir))
 
-from app_config import Config 
+from app_config import Config
+from utils.safe_errors import safe_error_message
 
 files_bp = Blueprint('files', __name__)
-
-def get_current_user():
-    """
-    Extract user from JWT token
-    User must have logged in with lab credentials (Employee ID + Password)
-    Admin creates all accounts - no self-registration
-    """
-    token = request.headers.get('Authorization', '').replace('Bearer ', '')
-    if not token:
-        return None
-    return verify_token(token)
 
 
 @files_bp.route('/upload', methods=['POST'])
@@ -102,6 +92,13 @@ def upload_file():
         process_immediately = request.form.get('process_immediately', 'false').lower() == 'true'
         
         if process_immediately and result['extension'] in ['csv', 'txt']:
+            # Validate gene-expression columns before processing # New update 7 Dec (No file csv can analyze just genes file)
+            gene_validation = FileHandler.validate_gene_expression_columns(result['filepath'])
+            if not gene_validation['valid']:
+                # Delete invalid file
+                FileHandler.delete_file(result['filepath'])
+                return jsonify({'error': gene_validation.get('error', 'Invalid file: gene-expression columns not found.')}), 400
+            
             try:
                 # Process file through AI
                 analysis_result = process_genetic_data(result['filepath'], result['file_id'])
@@ -144,7 +141,7 @@ def upload_file():
                 }
             except Exception as e:
                 # Processing failed, but file was uploaded successfully
-                response_data['processing_error'] = f"Processing failed: {str(e)}"
+                response_data['processing_error'] = safe_error_message(e, 'Processing failed.')
                 response_data['message'] = 'File uploaded successfully, but processing failed'
         
         return jsonify(response_data), 201
@@ -152,7 +149,7 @@ def upload_file():
     except Exception as e:
         # If database insert fails, delete the file
         FileHandler.delete_file(result['filepath'])
-        return jsonify({'error': f"Database error: {str(e)}"}), 500
+        return jsonify({'error': safe_error_message(e, 'Database error.')}), 500
 
 
 @files_bp.route('/download/<file_id>', methods=['GET'])
@@ -200,7 +197,7 @@ def download_file(file_id):
             download_name=os.path.basename(actual_filepath)
         )
     except Exception as e:
-        return jsonify({'error': f"Error sending file: {str(e)}"}), 500
+        return jsonify({'error': safe_error_message(e, 'Error sending file.')}), 500
 
 
 @files_bp.route('/preview/<file_id>', methods=['GET'])
@@ -311,7 +308,7 @@ def delete_file(file_id):
         FileOperations.delete_file_record(file_id)
         return jsonify({'message': 'File deleted successfully'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': safe_error_message(e)}), 500
 
 
 @files_bp.route('/stats/<file_id>', methods=['GET'])

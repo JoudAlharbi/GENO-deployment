@@ -282,6 +282,100 @@ class FileHandler:
                 'valid': False,
                 'error': str(e)
             }
+    # New update 7 Dec (No file csv can analyze just genes file) 
+    @staticmethod
+    def validate_gene_expression_columns(filepath):
+        """
+        Validate that CSV file contains required gene-expression columns (ENSG gene IDs)
+        This should be called before processing the file through the AI model.
+        Supports three formats:
+        1. Files with a "gene_id" column
+        2. Files where gene IDs appear in the DataFrame index
+        3. Files where the first column has NO header and begins directly with ENSG IDs
+        """
+        try:
+            # Detect delimiter and check first row
+            with open(filepath, 'r', encoding='utf-8') as f:
+                first_line = f.readline()
+                if not first_line or not first_line.strip():
+                    return {
+                        'valid': False,
+                        'error': 'Invalid file: The uploaded dataset does not match the required gene-expression format.'
+                    }
+                delimiter = '\t' if '\t' in first_line else ','
+                
+                # Check if first row begins with ENSG (no header case)
+                first_row_parts = first_line.strip().split(delimiter)
+                first_value = first_row_parts[0].strip() if first_row_parts else ''
+                has_no_header = first_value.upper().startswith('ENSG')
+            
+            gene_ids = None
+            
+            # Case 3: File has no header, first column starts with ENSG
+            if has_no_header:
+                # Read CSV without header, treat first column as gene_id
+                df = pd.read_csv(filepath, sep=delimiter, header=None)
+                if df.empty or len(df.columns) == 0:
+                    return {
+                        'valid': False,
+                        'error': 'Invalid file: The uploaded dataset does not match the required gene-expression format.'
+                    }
+                # First column (index 0) contains gene IDs
+                gene_ids = df.iloc[:, 0].dropna().tolist()
+            else:
+                # Read CSV with pandas (assumes header exists)
+                df = pd.read_csv(filepath, sep=delimiter)
+                
+                # Check if dataframe is empty
+                if df.empty:
+                    return {
+                        'valid': False,
+                        'error': 'Invalid file: The uploaded dataset does not match the required gene-expression format.'
+                    }
+                
+                # Case 1: Check if "gene_id" exists as a normal column
+                if 'gene_id' in df.columns:
+                    gene_ids = df['gene_id'].dropna().tolist()
+                # Case 2: Check if the index contains ENSG values
+                elif len(df.index) > 0:
+                    index_values = df.index.tolist()
+                    # Check if index contains ENSG values
+                    has_ensg_in_index = any(str(val).strip().upper().startswith('ENSG') for val in index_values)
+                    if has_ensg_in_index:
+                        gene_ids = index_values
+            
+            # If neither format contains gene IDs, return error
+            if gene_ids is None or len(gene_ids) == 0:
+                return {
+                    'valid': False,
+                    'error': 'Invalid file: The uploaded dataset does not match the required genes file format.'
+                }
+            
+            # Count how many gene IDs match the ENSG pattern
+            ensg_pattern_count = 0
+            for gene_id in gene_ids:
+                gene_str = str(gene_id).strip()
+                # Check if it starts with ENSG (case-insensitive)
+                if gene_str.upper().startswith('ENSG'):
+                    ensg_pattern_count += 1
+            
+            # Calculate percentage of ENSG gene IDs
+            ensg_percentage = (ensg_pattern_count / len(gene_ids)) * 100
+            
+            # Require at least 30% of values to start with ENSG
+            if ensg_percentage < 30:
+                return {
+                    'valid': False,
+                    'error': 'Invalid file: The uploaded dataset does not match the required genes fileformat.'
+                }
+            
+            return {'valid': True}
+            
+        except Exception as e:
+            return {
+                'valid': False,
+                'error': 'Invalid file: The uploaded dataset does not match the required genes file format.'
+            }
     
     @staticmethod
     def parse_csv_data(filepath):

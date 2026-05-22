@@ -1,40 +1,53 @@
-import psycopg2
-import sys
+"""
+Optional admin seed — set ADMIN_EMPLOYEE_ID and ADMIN_PASSWORD in env before running.
+Not required for public portfolio demo (use create_test_users.py / DEMO01).
+"""
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import sys
+from pathlib import Path
+
+import psycopg2
+
+backend_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(backend_dir))
+
+from app_config import Config
 from utils.auth_utils import hash_password
 
-from pathlib import Path
-# Add the backend directory to the Python path
-backend_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(backend_dir))
-from app_config import Config 
+ADMIN_ID = os.getenv('ADMIN_EMPLOYEE_ID', 'ADMIN-001')
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@geno-lab.example')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', '')
+ADMIN_NAME = os.getenv('ADMIN_FULLNAME', 'System Administrator')
+
+if not ADMIN_PASSWORD:
+    print('[SKIP] Set ADMIN_PASSWORD in the environment to create an admin user.')
+    sys.exit(0)
 
 conn = psycopg2.connect(
     host=Config.DB_HOST,
     database=Config.DB_NAME,
     user=Config.DB_USER,
     password=Config.DB_PASSWORD,
-    port=Config.DB_PORT
+    port=Config.DB_PORT,
 )
 
 cur = conn.cursor()
+admin_password = hash_password(ADMIN_PASSWORD)
 
-admin_password = hash_password("Admin123!")
-
-cur.execute("""
-    INSERT INTO LaboratoryUser 
+cur.execute(
+    """
+    INSERT INTO LaboratoryUser
     (UserID, Email, Password, Fullname, EmployeeID, IsFirstLogin)
-    VALUES 
-    ('ADMIN-001', 'admin@genolabs.com', %s, 'System Administrator', 
-     'ADMIN-001', FALSE)
-""", (admin_password,))
+    VALUES (%s, %s, %s, %s, %s, FALSE)
+    ON CONFLICT (UserID) DO UPDATE
+    SET Password = EXCLUDED.Password, Email = EXCLUDED.Email
+    """,
+    (ADMIN_ID, ADMIN_EMAIL, admin_password, ADMIN_NAME, ADMIN_ID),
+)
 
 conn.commit()
 cur.close()
 conn.close()
 
-print("✓ Admin created successfully!")
-print("Employee ID: ADMIN-001")
-print("Password: Admin123!")
-print("⚠️  Change this password after first login!")
+print('[OK] Admin user created/updated')
+print(f'  Employee ID: {ADMIN_ID}')

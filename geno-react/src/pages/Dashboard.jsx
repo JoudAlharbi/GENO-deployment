@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CountUp from "../components/CountUp";
+import DashboardAnalytics from "../components/DashboardAnalytics";
 import { fetchDashboard } from "../services/api";
-import { formatPercentEn, formatDecimalEn } from "../utils/formatNumber";
-
-// API Base URL for direct fetch calls
-const API_BASE_URL = "http://127.0.0.1:5000";
+import { formatPercentEn } from "../utils/formatNumber";
 
 /**
  * Dashboard Page - Main view for lab analysis history
@@ -22,16 +20,13 @@ export default function Dashboard() {
   // State for dashboard data
   const [samples, setSamples] = useState([]);
   const [filteredSamples, setFilteredSamples] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // Separate state for KPI summary (fetched independently)
-  const [summary, setSummary] = useState({
+  const [stats, setStats] = useState({
     total_analyses: 0,
     high_risk_samples: 0,
     high_risk_rate: 0,
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Sorting and filtering state
   const [sortField, setSortField] = useState("created_at");
@@ -49,45 +44,6 @@ export default function Dashboard() {
       navigate("/login");
     }
   }, [navigate]);
-
-  // Fetch KPI summary data (separate from table data)
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const token = localStorage.getItem('genoToken') || sessionStorage.getItem('genoToken');
-        if (!token) return;
-        
-        // Get all reports to calculate summary
-        const res = await fetch(`${API_BASE_URL}/api/reports`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        
-        if (!res.ok) throw new Error("Failed to fetch dashboard summary");
-        const data = await res.json();
-        const reports = data.reports || [];
-        
-        // Calculate statistics
-        const totalAnalyses = reports.length;
-        const highRiskSamples = reports.filter(r => {
-          const accuracy = r.accuracy || 0;
-          return accuracy >= 0.75; // High risk threshold
-        }).length;
-        const highRiskRate = totalAnalyses > 0 ? (highRiskSamples / totalAnalyses) * 100 : 0;
-        
-        setSummary({
-          total_analyses: totalAnalyses,
-          high_risk_samples: highRiskSamples,
-          high_risk_rate: highRiskRate
-        });
-      } catch (err) {
-        console.error("Error loading dashboard summary:", err);
-      }
-    };
-
-    fetchSummary();
-  }, []);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -229,491 +185,152 @@ export default function Dashboard() {
     });
   };
 
-  // Get risk badge style
-  const getRiskBadgeStyle = (riskLevel) => {
+  const getRiskBadgeClass = (riskLevel) => {
     const level = (riskLevel || "").toLowerCase();
-    const baseStyle = {
-      padding: "4px 12px",
-      borderRadius: "8px",
-      fontSize: "0.8rem",
-      fontWeight: "600",
-      textTransform: "uppercase",
-      letterSpacing: "0.3px"
-    };
-    
-    if (level === "high") {
-      return { ...baseStyle, background: "rgba(255, 100, 100, 0.15)", color: "#ff9999", border: "1px solid rgba(255, 100, 100, 0.3)" };
-    } else if (level === "medium") {
-      return { ...baseStyle, background: "rgba(255, 200, 100, 0.15)", color: "#ffd699", border: "1px solid rgba(255, 200, 100, 0.3)" };
-    } else {
-      return { ...baseStyle, background: "rgba(100, 255, 150, 0.15)", color: "#99ffbb", border: "1px solid rgba(100, 255, 150, 0.3)" };
-    }
+    if (level === "high") return "db-risk-badge db-risk-badge--high";
+    return "db-risk-badge db-risk-badge--low";
   };
 
-  // Card style
-  const cardStyle = {
-    background: "radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(255,255,255,0.01))",
-    backdropFilter: "blur(6px)",
-    WebkitBackdropFilter: "blur(6px)",
-    borderRadius: "16px",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0px 0px 25px rgba(0,0,0,0.45)",
-    padding: "20px"
-  };
-
-  // Use summary state for KPI cards (fetched from /dashboard/summary)
-  const totalAnalyses = summary.total_analyses;
-  const highRiskSamples = summary.high_risk_samples;
-  const highRiskRate = Number(summary.high_risk_rate ?? 0);
+  // KPI stats from fetchDashboard — derived from AI score_percent (75% threshold), not model accuracy
+  const totalAnalyses = stats.total_analyses;
+  const highRiskSamples = stats.high_risk_samples;
+  const highRiskRate = Number(stats.high_risk_rate ?? 0);
 
   return (
-    <main className="dashboard-content" style={{ padding: "30px", maxWidth: "1400px", margin: "0 auto" }}>
-      {/* Header */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center",
-        marginBottom: "30px",
-        flexWrap: "wrap",
-        gap: "15px"
-      }}>
+    <main className="dashboard-content dashboard-modern">
+      <header className="db-header">
         <div>
-          <h1 style={{ 
-            color: "#ffffff", 
-            margin: 0,
-            fontSize: "2rem",
-            fontWeight: "600",
-            textShadow: "0px 0px 10px rgba(255,255,255,0.15)"
-          }}>
-            Laboratory Dashboard
-          </h1>
-          <p style={{ color: "#888", margin: "8px 0 0" }}>
+          <h1 className="db-header__title">Laboratory Dashboard</h1>
+          <p className="db-header__subtitle">
             Manage and browse all your genetic analysis history
           </p>
         </div>
-        
-        <Link 
-          to="/load" 
-          style={{
-            background: "rgba(255,255,255,0.1)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "#ffffff",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            transition: "all 0.3s ease",
-            fontWeight: "500"
-          }}
-        >
+        <Link to="/load" className="db-btn-primary">
           + New Analysis
         </Link>
-      </div>
+      </header>
 
-      {/* Overview Stats Row */}
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
-        gap: "20px",
-        marginBottom: "30px"
-      }}>
-        {/* Total analyses */}
-        <div style={{
-          ...cardStyle,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center"
-        }}>
-          <span style={{ color: "#888", fontSize: "0.85rem", marginBottom: "8px" }}>
-            Total Analyses
-          </span>
-          <span style={{ 
-            color: "#ffffff", 
-            fontSize: "2.2rem",
-            fontWeight: "bold",
-            textShadow: "0px 0px 10px rgba(255,255,255,0.2)"
-          }}>
+      <section className="db-stats" aria-label="Overview statistics">
+        <article className="db-stat-card">
+          <span className="db-stat-card__label">Total Analyses</span>
+          <span className="db-stat-card__value">
             <CountUp to={totalAnalyses} />
           </span>
-          <span style={{ color: "#666", fontSize: "0.8rem", marginTop: "5px" }}>
-            All processed samples
-          </span>
-        </div>
-
-        {/* High-risk samples */}
-        <div style={{
-          ...cardStyle,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center"
-        }}>
-          <span style={{ color: "#888", fontSize: "0.85rem", marginBottom: "8px" }}>
-            High-Risk Samples
-          </span>
-          <span style={{ 
-            color: highRiskSamples > 0 ? "#ff9999" : "#ffffff", 
-            fontSize: "2.2rem",
-            fontWeight: "bold"
-          }}>
+          <span className="db-stat-card__hint">All processed samples</span>
+        </article>
+        <article className="db-stat-card">
+          <span className="db-stat-card__label">High-Risk Samples</span>
+          <span className={`db-stat-card__value${highRiskSamples > 0 ? " db-stat-card__value--danger" : ""}`}>
             <CountUp to={highRiskSamples} />
           </span>
-          <span style={{ color: "#666", fontSize: "0.8rem", marginTop: "5px" }}>
-            Marked as high-risk
-          </span>
-        </div>
-
-        {/* High-risk rate */}
-        <div style={{
-          ...cardStyle,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center"
-        }}>
-          <span style={{ color: "#888", fontSize: "0.85rem", marginBottom: "8px" }}>
-            High-Risk Rate
-          </span>
-          <span style={{ 
-            color: "#ffffff", 
-            fontSize: "2.2rem",
-            fontWeight: "bold"
-          }}>
-            {formatPercentEn(highRiskRate, 1)}
-          </span>
-          <div style={{
-            width: "80%",
-            height: "6px",
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: "3px",
-            overflow: "hidden",
-            marginTop: "10px"
-          }}>
-            <div style={{
-              width: `${Math.min(highRiskRate, 100)}%`,
-              height: "100%",
-              background: "rgba(255, 100, 100, 0.6)",
-              borderRadius: "3px",
-              transition: "width 1s ease"
-            }}></div>
+          <span className="db-stat-card__hint">Marked as high-risk</span>
+        </article>
+        <article className="db-stat-card">
+          <span className="db-stat-card__label">High-Risk Rate</span>
+          <span className="db-stat-card__value">{formatPercentEn(highRiskRate, 1)}</span>
+          <div className="db-stat-card__bar">
+            <div
+              className="db-stat-card__bar-fill"
+              style={{ width: `${Math.min(highRiskRate, 100)}%` }}
+            />
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
-      {/* Filter Row - Search, Risk Level, and Count as separate elements */}
-      <div 
-        className="filter-row"
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
-          flexWrap: "nowrap"
-        }}
-      >
-        {/* Search - separate box */}
-        <div 
-          className="filter-search"
-          style={{ 
-            flex: "1",
-            maxWidth: "500px"
-          }}
-        >
+      <DashboardAnalytics samples={samples} loading={loading} />
+
+      <div className="db-toolbar" role="search">
+        <div className="db-toolbar__search">
           <input
             type="text"
+            className="db-input"
             placeholder="Search by file name or sequence ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "12px 16px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: "10px",
-              color: "#ffffff",
-              fontSize: "0.9rem",
-              outline: "none",
-              boxSizing: "border-box"
-            }}
+            aria-label="Search analyses"
           />
         </div>
-
-        {/* Risk Level Filter - separate box */}
-        <div 
-          className="filter-risk"
-          style={{ 
-            width: "auto",
-            flexShrink: 0
-          }}
+        <select
+          className="db-select"
+          value={filterRisk}
+          onChange={(e) => setFilterRisk(e.target.value)}
+          aria-label="Filter by risk level"
         >
-          <select
-            value={filterRisk}
-            onChange={(e) => setFilterRisk(e.target.value)}
-            style={{
-              padding: "12px 16px",
-              paddingRight: "36px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: "10px",
-              color: "#ffffff",
-              fontSize: "0.9rem",
-              cursor: "pointer",
-              outline: "none",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 12px center"
-            }}
-          >
-            <option value="ALL" style={{ background: "#1a1a1a" }}>All Risk Levels</option>
-            <option value="LOW" style={{ background: "#1a1a1a" }}>Low Risk</option>
-            <option value="HIGH" style={{ background: "#1a1a1a" }}>High Risk</option>
-          </select>
-        </div>
-
-        {/* Results Count */}
-        <div 
-          className="filter-count"
-          style={{ 
-            color: "#888", 
-            fontSize: "0.85rem",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-            marginLeft: "auto"
-          }}
-        >
+          <option value="ALL">All Risk Levels</option>
+          <option value="LOW">Low Risk</option>
+          <option value="HIGH">High Risk</option>
+        </select>
+        <span className="db-toolbar__count">
           Showing {filteredSamples.length} of {samples.length} analyses
-        </div>
+        </span>
       </div>
 
-      {/* Analysis History Table */}
-      <div style={cardStyle}>
-        <h2 style={{ 
-          color: "#ffffff", 
-          margin: "0 0 20px",
-          fontSize: "1.3rem",
-          fontWeight: "600",
-          textShadow: "0px 0px 8px rgba(255,255,255,0.2)"
-        }}>
-          Analysis History
-        </h2>
+      <section className="db-panel">
+        <h2 className="db-panel__title">Analysis History</h2>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px", color: "#888" }}>
-            <div style={{
-              width: "40px",
-              height: "40px",
-              border: "3px solid rgba(255,255,255,0.1)",
-              borderTopColor: "#ffffff",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 20px"
-            }}></div>
-            Loading analysis history...
+          <div className="db-state">
+            <div className="db-spinner" aria-hidden="true" />
+            <p className="db-state__title">Loading analysis history...</p>
           </div>
         ) : error ? (
-          <div style={{ textAlign: "center", padding: "60px", color: "#ff9999" }}>
-            {error}
-            <br />
-            <button
-              onClick={() => window.location.reload()}
-              style={{
-                marginTop: "15px",
-                padding: "10px 20px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                borderRadius: "8px",
-                cursor: "pointer"
-              }}
-            >
+          <div className="db-state db-state--error">
+            <p className="db-state__title">{error}</p>
+            <button type="button" className="db-btn-secondary" onClick={() => window.location.reload()}>
               Retry
             </button>
           </div>
         ) : filteredSamples.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px", color: "#888" }}>
+          <div className="db-state">
             {samples.length === 0 ? (
               <>
-                <p style={{ fontSize: "1.1rem", marginBottom: "15px" }}>No analyses found</p>
+                <p className="db-state__title">No analyses found</p>
                 <p>Upload your first DNA file to get started!</p>
-                <Link
-                  to="/load"
-                  style={{
-                    display: "inline-block",
-                    marginTop: "20px",
-                    padding: "12px 24px",
-                    background: "rgba(255,255,255,0.1)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    color: "#fff",
-                    borderRadius: "8px",
-                    textDecoration: "none"
-                  }}
-                >
+                <Link to="/load" className="db-btn-primary" style={{ marginTop: "20px" }}>
                   Upload DNA File
                 </Link>
               </>
             ) : (
-              <p>No results match your search or filters</p>
+              <p className="db-state__title">No results match your search or filters</p>
             )}
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ 
-              width: "100%", 
-              borderCollapse: "collapse",
-              fontSize: "0.9rem"
-            }}>
+          <div className="db-table-wrap">
+            <table className="db-table">
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                  <th 
-                    onClick={() => handleSort("file_name")}
-                    style={{ 
-                      padding: "14px 10px", 
-                      textAlign: "left", 
-                      color: "#888",
-                      fontWeight: "500",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      cursor: "pointer",
-                      userSelect: "none"
-                    }}
-                  >
+                <tr>
+                  <th className="db-th--sortable" onClick={() => handleSort("file_name")}>
                     File Name{getSortIndicator("file_name")}
                   </th>
-                  <th style={{ 
-                    padding: "14px 10px", 
-                    textAlign: "left", 
-                    color: "#888",
-                    fontWeight: "500",
-                    fontSize: "0.8rem",
-                    textTransform: "uppercase"
-                  }}>
-                    Sequence ID
-                  </th>
-                  <th 
-                    onClick={() => handleSort("accuracy")}
-                    style={{ 
-                      padding: "14px 10px", 
-                      textAlign: "center", 
-                      color: "#888",
-                      fontWeight: "500",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      userSelect: "none"
-                    }}
-                  >
+                  <th>Sequence ID</th>
+                  <th className="db-th--sortable db-th--center" onClick={() => handleSort("accuracy")}>
                     Risk Score{getSortIndicator("accuracy")}
                   </th>
-                  <th 
-                    onClick={() => handleSort("risk_level")}
-                    style={{ 
-                      padding: "14px 10px", 
-                      textAlign: "center", 
-                      color: "#888",
-                      fontWeight: "500",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      userSelect: "none"
-                    }}
-                  >
+                  <th className="db-th--sortable db-th--center" onClick={() => handleSort("risk_level")}>
                     Risk Level{getSortIndicator("risk_level")}
                   </th>
-                  <th 
-                    onClick={() => handleSort("created_at")}
-                    style={{ 
-                      padding: "14px 10px", 
-                      textAlign: "left", 
-                      color: "#888",
-                      fontWeight: "500",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      userSelect: "none"
-                    }}
-                  >
+                  <th className="db-th--sortable" onClick={() => handleSort("created_at")}>
                     Date{getSortIndicator("created_at")}
                   </th>
-                  <th style={{ 
-                    padding: "14px 10px", 
-                    textAlign: "center", 
-                    color: "#888",
-                    fontWeight: "500",
-                    fontSize: "0.8rem",
-                    textTransform: "uppercase"
-                  }}>
-                    Actions
-                  </th>
+                  <th className="db-th--center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredSamples.map((sample, index) => (
-                  <tr 
-                    key={sample.sequence_id}
-                    style={{ 
-                      borderBottom: index < filteredSamples.length - 1 
-                        ? "1px solid rgba(255,255,255,0.05)" 
-                        : "none"
-                    }}
-                  >
-                    <td style={{ 
-                      padding: "16px 10px", 
-                      color: "#e7e7e7",
-                      maxWidth: "200px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap"
-                    }}>
-                      {sample.file_name}
-                    </td>
-                    <td style={{ 
-                      padding: "16px 10px", 
-                      color: "#ffffff",
-                      fontFamily: "monospace",
-                      fontSize: "0.85rem"
-                    }}>
-                      {sample.sequence_id}
-                    </td>
-                    <td style={{ 
-                      padding: "16px 10px", 
-                      textAlign: "center",
-                      color: "#ffffff",
-                      fontWeight: "600"
-                    }}>
-                      {/* Use score_percent from backend - English digits only */}
+                {filteredSamples.map((sample) => (
+                  <tr key={sample.sequence_id}>
+                    <td className="db-td--file">{sample.file_name}</td>
+                    <td className="db-td--mono">{sample.sequence_id}</td>
+                    <td className="db-td--score db-td--center">
                       {sample.score_percent != null ? formatPercentEn(sample.score_percent, 1) : "--"}
                     </td>
-                    <td style={{ padding: "16px 10px", textAlign: "center" }}>
-                      <span style={getRiskBadgeStyle(sample.risk_level)}>
+                    <td className="db-td--center">
+                      <span className={getRiskBadgeClass(sample.risk_level)}>
                         {sample.risk_level}
                       </span>
                     </td>
-                    <td style={{ 
-                      padding: "16px 10px", 
-                      color: "#888",
-                      fontSize: "0.85rem"
-                    }}>
-                      {formatDate(sample.created_at)}
-                    </td>
-                    <td style={{ padding: "16px 10px", textAlign: "center" }}>
-                      <button
-                        onClick={() => handleViewReport(sample)}
-                        style={{
-                          padding: "6px 14px",
-                          background: "rgba(255,255,255,0.08)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "#ffffff",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.8rem",
-                          transition: "all 0.2s ease"
-                        }}
-                      >
+                    <td className="db-td--date">{formatDate(sample.created_at)}</td>
+                    <td className="db-td--center">
+                      <button type="button" className="db-btn-secondary" onClick={() => handleViewReport(sample)}>
                         View Report
                       </button>
                     </td>
@@ -723,14 +340,7 @@ export default function Dashboard() {
             </table>
           </div>
         )}
-      </div>
-
-      {/* CSS Animation */}
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      </section>
     </main>
   );
 }

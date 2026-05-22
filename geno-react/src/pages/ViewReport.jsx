@@ -2,9 +2,7 @@ import React, { useEffect, useState, Component } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { formatPercentEn } from "../utils/formatNumber";
 import "../styles/report.css";
-
-// API Base URL (same as used in Dashboard.jsx)
-const API_BASE_URL = "http://127.0.0.1:5000";
+import { API_BASE_URL } from "../config/apiBase";
 
 // Error Boundary Component - catches render errors and prevents blank page
 class ErrorBoundary extends Component {

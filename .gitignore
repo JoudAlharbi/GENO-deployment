@@ -1,3 +1,40 @@
-node_modules/
+venv/
 .venv/
-.cursor/ِ
+node_modules/
+dist/
+.env
+.env.local
+.env.production
+uploads/
+reports/
+__pycache__/
+*.pyc
+
+# Project-specific paths
+backend/venv/
+backend/uploads/
+backend/reports/
+backend/__pycache__/
+**/__pycache__/
+geno-react/dist/
+geno-react/node_modules/
+
+# Environment templates stay tracked
+!.env.example
+!**/.env.example
+!**/.env.production.example
+
+# Local duplicates / legacy copies (not for public repo)
+geno-react copy/
+genoproject/
+
+# Generated / runtime data
+backend/data/analyses.json
+backend/counts.txt
+counts.txt
+
+# IDE / OS
+.cursor/
+.DS_Store
+Thumbs.db
+.vscode/

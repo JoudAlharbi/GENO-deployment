@@ -1,10 +1,19 @@
 from flask import Blueprint, request, jsonify, send_file #blueprint is used to create a blueprint of the reports route
 from DB.db_operations import DatabaseOperations #database operations are used to interact with the database
 from DB.file_operations import FileOperations 
-from utils.auth_utils import verify_token
+from utils.request_auth import get_current_user
+from utils.report_helpers import (
+    parse_analysis_result,
+    extract_risk_from_analysis,
+    format_report_response,
+    format_report_list_item,
+    user_has_report_access,
+    build_report_data_for_pdf,
+)
 from utils.ai_processor import process_genetic_data #process genetic data is placeholder for AI
 from utils.file_utils import FileHandler
 from utils.pdf_generator import save_pdf_report
+from utils.safe_errors import safe_error_message
 import os 
 import sys 
 import uuid #uuid is used to generate a unique identifier
@@ -14,23 +23,9 @@ from pathlib import Path
 backend_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(backend_dir))
 
-from app_config import Config 
-
-from app_config import Config 
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app_config import Config
 
 reports_bp = Blueprint('reports', __name__)
-
-
-def get_current_user():
-    """
-    Extract user from JWT token
-    """
-    token = request.headers.get('Authorization', '').replace('Bearer ', '')
-    if not token:
-        return None
-    return verify_token(token)
 
 
 @reports_bp.route('/process/<file_id>', methods=['POST'])
@@ -38,40 +33,75 @@ def process_file(file_id):
     """
     Process a file through AI and generate a report
     """
+    # ========== DEBUG: CONFIRM ROUTE IS CALLED ==========
+    print("=" * 80)
+    print(f"[ROUTE] /api/reports/process/{file_id} - REQUEST RECEIVED")
+    print(f"[ROUTE] Request method: {request.method}")
+    print(f"[ROUTE] Request URL: {request.url}")
+    print(f"[ROUTE] File ID: {file_id}")
+    print(f"[ROUTE] Request headers: {dict(request.headers)}")
+    print("=" * 80)
+    # ====================================================
+    
     # Verify authentication
+    print(f"[ROUTE] Checking authentication...")
     user = get_current_user()
     if not user:
+        print(f"[ROUTE] ERROR: Authentication failed")
         return jsonify({'error': 'Authentication required'}), 401
+    print(f"[ROUTE] Authentication successful. User ID: {user['user_id']}")
     
     # Get file info
+    print(f"[ROUTE] Looking up file record for file_id: {file_id}")
     file_record = FileOperations.get_file_by_id(file_id)
     if not file_record:
+        print(f"[ROUTE] ERROR: File not found in database")
         return jsonify({'error': 'File not found'}), 404
+    print(f"[ROUTE] File record found: {file_record.get('originalname', 'N/A')}")
     
     # Check ownership
     if file_record['userid'] != user['user_id']:
+        print(f"[ROUTE] ERROR: Access denied. File owner: {file_record['userid']}, User: {user['user_id']}")
         return jsonify({'error': 'Access denied'}), 403
+    print(f"[ROUTE] Ownership verified")
     
     # Find file path
     import glob
     filepath = os.path.join(Config.UPLOAD_FOLDER, user['user_id'], f"{file_id}.*")
+    print(f"[ROUTE] Searching for file pattern: {filepath}")
     files = glob.glob(filepath)
     
     if not files:
+        print(f"[ROUTE] ERROR: File not found on filesystem")
         return jsonify({'error': 'File not found on server'}), 404
     
     actual_filepath = files[0]
+    print(f"[ROUTE] File found at: {actual_filepath}")
     
     # Validate file format if CSV
     extension = os.path.splitext(actual_filepath)[1][1:].lower()
+    print(f"[ROUTE] File extension: {extension}")
     if extension in ['csv', 'txt']:
+        print(f"[ROUTE] Validating CSV format...")
         validation = FileHandler.validate_csv_format(actual_filepath)
         if not validation['valid']:
+            print(f"[ROUTE] ERROR: CSV validation failed: {validation.get('error', 'Unknown error')}")
             return jsonify({'error': f"Invalid file format: {validation['error']}"}), 400
+        print(f"[ROUTE] CSV validation passed")
+        # New update 7 Dec (No file csv can analyze just genes file)
+        # Validate gene-expression columns before processing
+        print(f"[ROUTE] Validating gene-expression columns...")
+        gene_validation = FileHandler.validate_gene_expression_columns(actual_filepath)
+        if not gene_validation['valid']:
+            print(f"[ROUTE] ERROR: Gene-expression validation failed: {gene_validation.get('error', 'Unknown error')}")
+            return jsonify({'error': gene_validation.get('error', 'Invalid file: gene-expression columns not found.')}), 400
+        print(f"[ROUTE] Gene-expression validation passed")
     
     try:
+        print(f"[ROUTE] Calling process_genetic_data()...")
         # Process file through AI
         analysis_result = process_genetic_data(actual_filepath, file_id, user_id=user['user_id'])
+        print(f"[ROUTE] process_genetic_data() completed successfully")
         
         # Store report in database
         DatabaseOperations.create_report(
@@ -103,24 +133,9 @@ def process_file(file_id):
             # PDF generation failed, but report is still created
             print(f"PDF generation failed: {str(pdf_error)}")
         
-        # Parse analysis_result to extract risk score and risk level
-        risk_score_percent = None
-        risk_level = None
-        try:
-            if isinstance(analysis_result['analysis_result'], str):
-                parsed_analysis = json.loads(analysis_result['analysis_result'])
-            else:
-                parsed_analysis = analysis_result['analysis_result']
-            
-            # Extract risk score from either report or result object
-            report_obj = parsed_analysis.get('report', {})
-            result_obj = parsed_analysis.get('result', {})
-            
-            risk_score_percent = result_obj.get('score_percent') or report_obj.get('risk_score_percent')
-            risk_level = result_obj.get('risk_level') or report_obj.get('risk_level') or analysis_result.get('risk_level')
-        except (json.JSONDecodeError, KeyError, TypeError) as e:
-            print(f"Warning: Could not parse analysis_result for risk score: {e}")
-            # Fallback to risk_level from analysis_result if available
+        parsed_analysis = parse_analysis_result(analysis_result.get('analysis_result'))
+        risk_score_percent, risk_level = extract_risk_from_analysis(parsed_analysis)
+        if not risk_level:
             risk_level = analysis_result.get('risk_level')
         
         return jsonify({
@@ -137,7 +152,7 @@ def process_file(file_id):
         }), 201
         
     except Exception as e:
-        return jsonify({'error': f"Processing failed: {str(e)}"}), 500
+        return jsonify({'error': safe_error_message(e, 'Processing failed.')}), 500
 
 
 @reports_bp.route('', methods=['GET'])
@@ -167,32 +182,7 @@ def get_reports():
         for report in reports:
             # Get associated files
             files = FileOperations.get_report_files(report['sequence_id'])
-            
-            # Parse analysis_result if it's a JSON string
-            raw_analysis = report['analysis_result']
-            analysis_result = {}
-            if isinstance(raw_analysis, str):
-                try:
-                    analysis_result = json.loads(raw_analysis)
-                except json.JSONDecodeError:
-                    # Use empty dict as fallback if parsing fails
-                    analysis_result = {}
-            elif isinstance(raw_analysis, dict):
-                analysis_result = raw_analysis
-            else:
-                analysis_result = {}
-            
-            report_list.append({
-                'sequence_id': report['sequence_id'],
-                'accuracy': float(report['accuracy']) if report['accuracy'] else None,
-                'variant_info': report['variant_info'],
-                'fullname': report['fullname'],
-                'patientInfo': report['patientinfo'],
-                'age': report['age'],
-                'gender': report['gender'],
-                'analysis_result': analysis_result,
-                'file_count': len(files) if files else 0
-            })
+            report_list.append(format_report_list_item(report, files))
         
         return jsonify({
             'total_reports': len(report_list),
@@ -200,7 +190,7 @@ def get_reports():
         }), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': safe_error_message(e)}), 500
 
 
 @reports_bp.route('/<sequence_id>', methods=['GET'])
@@ -219,52 +209,15 @@ def get_report(sequence_id):
         if not report:
             return jsonify({'error': 'Report not found'}), 404
         
-        # Check if user has access (owns a file linked to this report)
-        query = """
-            SELECT COUNT(*) as count
-            FROM contains c
-            JOIN UPLOAD u ON c.FileID = u.FileID
-            WHERE c.sequence_id = %s AND u.UserID = %s
-        """
-        access_check = DatabaseOperations.execute_query(query, (sequence_id, user['user_id']), fetch=True)
-        
-        if not access_check or access_check[0]['count'] == 0:
+        if not user_has_report_access(user['user_id'], sequence_id):
             return jsonify({'error': 'Access denied'}), 403
-        
-        # Get associated files
+
         files = FileOperations.get_report_files(sequence_id)
-        
-        # Parse analysis_result if it's a JSON string
-        raw_analysis = report['analysis_result']
-        analysis_result = {}
-        if isinstance(raw_analysis, str):
-            try:
-                analysis_result = json.loads(raw_analysis)
-            except json.JSONDecodeError:
-                # Use empty dict as fallback if parsing fails
-                analysis_result = {}
-        elif isinstance(raw_analysis, dict):
-            analysis_result = raw_analysis
-        else:
-            analysis_result = {}
-        
-        # Format response
-        response = {
-            'sequence_id': report['sequence_id'],
-            'accuracy': float(report['accuracy']) if report['accuracy'] else None,
-            'variant_info': report['variant_info'],
-            'fullname': report['fullname'],
-            'patientInfo': report['patientinfo'],
-            'age': report['age'],
-            'gender': report['gender'],
-            'analysis_result': analysis_result,
-            'files': [f['fileid'] for f in files] if files else []
-        }
-        
+        response = format_report_response(report, files)
         return jsonify(response), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': safe_error_message(e)}), 500
 
 
 @reports_bp.route('/<sequence_id>/view', methods=['POST'])
@@ -283,25 +236,16 @@ def record_report_view(sequence_id):
         if not report:
             return jsonify({'error': 'Report not found'}), 404
         
-        # Check if user has access
-        query = """
-            SELECT COUNT(*) as count
-            FROM contains c
-            JOIN UPLOAD u ON c.FileID = u.FileID
-            WHERE c.sequence_id = %s AND u.UserID = %s
-        """
-        access_check = DatabaseOperations.execute_query(query, (sequence_id, user['user_id']), fetch=True)
-        
-        if not access_check or access_check[0]['count'] == 0:
+        if not user_has_report_access(user['user_id'], sequence_id):
             return jsonify({'error': 'Access denied'}), 403
-        
+
         # Record view
         DatabaseOperations.record_report_view(user['user_id'], sequence_id)
         
         return jsonify({'message': 'View recorded successfully'}), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': safe_error_message(e)}), 500
 
 
 @reports_bp.route('/<sequence_id>/pdf', methods=['GET'])
@@ -321,51 +265,13 @@ def download_pdf_report(sequence_id):
         if not report:
             return jsonify({'error': 'Report not found'}), 404
         
-        # Check if user has access
-        query = """
-            SELECT COUNT(*) as count
-            FROM contains c
-            JOIN UPLOAD u ON c.FileID = u.FileID
-            WHERE c.sequence_id = %s AND u.UserID = %s
-        """
-        access_check = DatabaseOperations.execute_query(query, (sequence_id, user['user_id']), fetch=True)
-        
-        if not access_check or access_check[0]['count'] == 0:
+        if not user_has_report_access(user['user_id'], sequence_id):
             return jsonify({'error': 'Access denied'}), 403
-        
-        # Check if PDF exists, generate if missing
+
         pdf_path = report.get('pdf_path')
         if not pdf_path or not os.path.exists(pdf_path):
-            # Auto-generate PDF
             try:
-                # Parse analysis_result JSON
-                raw_analysis = report.get('analysis_result')
-                analysis_result = {}
-                
-                if isinstance(raw_analysis, str):
-                    try:
-                        analysis_result = json.loads(raw_analysis)
-                    except json.JSONDecodeError as e:
-                        print(f"[PDF ERROR] Failed to parse analysis_result JSON: {e}")
-                        analysis_result = {}
-                elif isinstance(raw_analysis, dict):
-                    analysis_result = raw_analysis
-                else:
-                    analysis_result = {}
-                
-                # Build report_data dict
-                report_data = {
-                    'sequence_id': report['sequence_id'],
-                    'accuracy': float(report['accuracy']) if report['accuracy'] is not None else None,
-                    'variant_info': report['variant_info'],
-                    'fullname': report['fullname'],
-                    'patientInfo': report['patientinfo'],
-                    'age': report['age'],
-                    'gender': report['gender'],
-                    'analysis_result': analysis_result  # parsed dict, not raw string
-                }
-                
-                # Generate PDF
+                report_data = build_report_data_for_pdf(report)
                 pdf_path = save_pdf_report(
                     report_data=report_data,
                     user_id=user['user_id'],
@@ -388,7 +294,7 @@ def download_pdf_report(sequence_id):
         )
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': safe_error_message(e)}), 500
 
 
 @reports_bp.route('/<sequence_id>/generate-pdf', methods=['POST'])
@@ -406,50 +312,10 @@ def generate_pdf_report_endpoint(sequence_id):
         if not report:
             return jsonify({'error': 'Report not found'}), 404
 
-        # Access control
-        query = """
-            SELECT COUNT(*) as count
-            FROM contains c
-            JOIN UPLOAD u ON c.FileID = u.FileID
-            WHERE c.sequence_id = %s AND u.UserID = %s
-        """
-        access_check = DatabaseOperations.execute_query(
-            query,
-            (sequence_id, user['user_id']),
-            fetch=True
-        )
-
-        if not access_check or access_check[0]['count'] == 0:
+        if not user_has_report_access(user['user_id'], sequence_id):
             return jsonify({'error': 'Access denied'}), 403
 
-        # --- Parse analysis_result JSON ---
-        raw_analysis = report.get('analysis_result')
-        analysis_result = {}
-
-        if isinstance(raw_analysis, str):
-            try:
-                analysis_result = json.loads(raw_analysis)
-            except json.JSONDecodeError as e:
-                print(f"[PDF] Failed to parse analysis_result JSON: {e}")
-                analysis_result = {}
-        elif isinstance(raw_analysis, dict):
-            analysis_result = raw_analysis
-        else:
-            analysis_result = {}
-
-        # --- Prepare report data ---
-        report_data = {
-            'sequence_id': report['sequence_id'],
-            'accuracy': float(report['accuracy']) if report['accuracy'] else None,
-            'variant_info': report['variant_info'],
-            'fullname': report['fullname'],
-            'patientInfo': report['patientinfo'],
-            'age': report['age'],
-            'gender': report['gender'],
-            'analysis_result': analysis_result
-        }
-
-        # --- Generate PDF ---
+        report_data = build_report_data_for_pdf(report)
         pdf_path = save_pdf_report(
             report_data=report_data,
             user_id=user['user_id'],
@@ -467,5 +333,5 @@ def generate_pdf_report_endpoint(sequence_id):
 
     except Exception as e:
         print(f"[PDF] Error while generating PDF: {e}")
-        return jsonify({'error': f"PDF generation failed: {str(e)}"}), 500
+        return jsonify({'error': safe_error_message(e, 'PDF generation failed.')}), 500
 
