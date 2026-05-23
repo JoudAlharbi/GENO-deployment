@@ -74,8 +74,19 @@ export default function LoadSample() {
         });
       }, 200);
 
-      // Call the API
-      const result = await apiService.analyzeCSV(selectedFile);
+      // Check token
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token") ||
+    localStorage.getItem("genoToken") ||
+    sessionStorage.getItem("genoToken");
+
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+
+  // Call API
+  const result = await apiService.analyzeCSV(selectedFile);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
