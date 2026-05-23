@@ -10,7 +10,10 @@ _DATA_DIR = Path(os.getenv('DATA_DIR', str(_BACKEND_ROOT)))
 
 
 class Config:
+
     # Database
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
     DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
     DB_NAME = os.getenv('DB_NAME', 'geno')
     DB_USER = os.getenv('DB_USER', 'postgres')
