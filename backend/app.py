@@ -77,11 +77,6 @@ def test_login_endpoint():
         }), 200
     except Exception:
         return jsonify({'error': 'Request failed'}), 500
-
-from utils.db_connection import init_db
-
-with app.app_context():
-    init_db()
     
 if __name__ == '__main__':
     if Config.IS_PRODUCTION and Config.SECRET_KEY == 'genosecret':
