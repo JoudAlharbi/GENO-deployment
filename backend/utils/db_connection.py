@@ -30,7 +30,7 @@ def get_db_connection(database=None):
     """Create and return a database connection."""
     database_url = os.getenv('DATABASE_URL')
     if database_url:
-        return psycopg2.connect(database_url)
+        return psycopg2.connect(database_url, sslmode='require')
     return psycopg2.connect(**get_connection_params(database))
 
 
