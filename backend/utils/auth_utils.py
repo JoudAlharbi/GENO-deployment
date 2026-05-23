@@ -22,10 +22,13 @@ def generate_token(user_id, email):
         'email': email,
         'exp': datetime.utcnow() + timedelta(hours=Config.JWT_EXPIRATION_HOURS)
     }
+
     token = jwt.encode(payload, Config.SECRET_KEY, algorithm='HS256')
+
     if isinstance(token, bytes):
         token = token.decode('utf-8')
-        return token
+
+    return token
 
 def verify_token(token):
     """Verify and decode a JWT token"""
