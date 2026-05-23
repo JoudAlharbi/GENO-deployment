@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from DB.admin_operations import AdminOperations
-from utils.auth_utils import verify_token
+from utils.request_auth import extract_bearer_token, get_current_user
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -10,12 +10,7 @@ def require_admin(f):
     
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = request.headers.get('Authorization', '').replace('Bearer ', '')
-        
-        if not token:
-            return jsonify({'error': 'Authorization required'}), 401
-        
-        payload = verify_token(token)
+        payload = get_current_user()
         if not payload:
             return jsonify({'error': 'Invalid token'}), 401
         
@@ -33,8 +28,7 @@ def require_admin(f):
 def create_lab_user():
     """Admin creates a new lab user"""
     data = request.get_json()
-    token = request.headers.get('Authorization', '').replace('Bearer ', '')
-    payload = verify_token(token)
+    payload = get_current_user()
     
     required = ['fullname', 'email', 'department', 'role', 'lab_location']
     if not all(field in data for field in required):

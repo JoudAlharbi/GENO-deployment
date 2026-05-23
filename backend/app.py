@@ -21,7 +21,14 @@ def _cors_origins():
 
 
 app = Flask(__name__)
-CORS(app, origins=_cors_origins(), supports_credentials=False)
+CORS(
+    app,
+    origins=_cors_origins(),
+    supports_credentials=False,
+    allow_headers=['Content-Type', 'Authorization'],
+    expose_headers=['Content-Type'],
+    methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+)
 app.config.from_object('config.Config')
 
 os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)

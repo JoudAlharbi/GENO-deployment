@@ -9,27 +9,103 @@ if (import.meta.env.DEV) {
   console.info('[GENO] API base:', API_BASE_URL);
 }
 
+const INVALID_TOKENS = new Set(['demo-token', 'null', 'undefined']);
+
 /**
- * Get the auth token from storage
+ * True if value looks like a signed JWT (three base64 segments).
  */
-const getAuthToken = () => {
-  return localStorage.getItem('genoToken') || sessionStorage.getItem('genoToken');
+export const isValidJwt = (token) => {
+  if (!token || typeof token !== 'string') return false;
+  const t = token.trim();
+  if (!t || INVALID_TOKENS.has(t)) return false;
+  const parts = t.split('.');
+  return parts.length === 3 && parts.every((p) => p.length > 0);
+};
+
+/**
+ * Get a valid JWT from storage.
+ * Prefers the storage where the user actually logged in (remember me vs session).
+ */
+export const getAuthToken = () => {
+  const sessionActive = sessionStorage.getItem('genoLoggedIn') === 'true';
+  const localActive = localStorage.getItem('genoLoggedIn') === 'true';
+
+  const storages =
+    sessionActive && !localActive
+      ? [sessionStorage, localStorage]
+      : [localStorage, sessionStorage];
+
+  for (const storage of storages) {
+    const token = storage.getItem('genoToken');
+    if (isValidJwt(token)) {
+      return token.trim();
+    }
+  }
+  return null;
+};
+
+/** Build headers with Authorization always set last (cannot be overwritten). */
+export const buildAuthHeaders = (extraHeaders = {}, { json = false, formData = false } = {}) => {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error('Authentication required. Please log in again.');
+  }
+
+  const headers = new Headers(extraHeaders);
+  if (json && !formData) {
+    headers.set('Content-Type', 'application/json');
+  }
+  if (formData) {
+    headers.delete('Content-Type');
+  }
+  headers.set('Authorization', `Bearer ${token}`);
+  return headers;
+};
+
+export const clearAuthStorage = () => {
+  ['genoToken', 'genoUser', 'genoLoggedIn', 'genoCompanyId', 'token'].forEach((key) => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+};
+
+export const storeAuthSession = (token, user, remember = true) => {
+  if (!isValidJwt(token)) {
+    throw new Error(
+      'Server returned an invalid session token. Please redeploy the backend or contact support.'
+    );
+  }
+  clearAuthStorage();
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem('genoToken', token);
+  storage.setItem('genoUser', JSON.stringify(user));
+  storage.setItem('genoLoggedIn', 'true');
 };
 
 /**
  * Get default headers for API requests
  */
-const getHeaders = (includeAuth = true) => {
-  const headers = {};
-  
-  if (includeAuth) {
-    const token = getAuthToken();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+const getHeaders = (includeAuth = true, options = {}) => {
+  if (!includeAuth) {
+    return {};
   }
-  
-  return headers;
+  const headerObj = buildAuthHeaders({}, options);
+  const plain = {};
+  headerObj.forEach((value, key) => {
+    plain[key] = value;
+  });
+  return plain;
+};
+
+const parseErrorMessage = async (response) => {
+  let errorMessage = `HTTP error ${response.status}`;
+  try {
+    const errorData = await response.json();
+    errorMessage = errorData.error || errorData.detail || errorMessage;
+  } catch {
+    errorMessage = response.statusText || errorMessage;
+  }
+  return errorMessage;
 };
 
 /**
@@ -37,15 +113,58 @@ const getHeaders = (includeAuth = true) => {
  */
 const handleResponse = async (response) => {
   if (!response.ok) {
-      let errorMessage = `HTTP error ${response.status}`;
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.error || errorData.detail || errorMessage;
-    } catch (e) {
-      // Response wasn't JSON, use status text
-      errorMessage = response.statusText || errorMessage;
+    const errorMessage = await parseErrorMessage(response);
+    if (response.status === 401) {
+      clearAuthStorage();
+      throw new Error('Session expired or invalid. Please log in again.');
     }
     throw new Error(errorMessage);
+  }
+  return response.json();
+};
+
+/**
+ * Authenticated fetch — always attaches Bearer JWT.
+ * FormData: never set Content-Type (browser adds multipart boundary).
+ */
+export const authFetch = async (url, options = {}) => {
+  const { method = 'GET', body, headers: extraHeaders, ...rest } = options;
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  const isJsonBody =
+    body !== undefined &&
+    !isFormData &&
+    !(body instanceof Blob) &&
+    typeof body === 'string';
+
+  const headers = buildAuthHeaders(extraHeaders, {
+    json: isJsonBody,
+    formData: isFormData,
+  });
+
+  const response = await fetch(url, {
+    ...rest,
+    method,
+    body,
+    headers,
+    mode: 'cors',
+    credentials: 'omit',
+  });
+
+  if (response.status === 401) {
+    clearAuthStorage();
+    const msg = await parseErrorMessage(response);
+    throw new Error(msg || 'Authentication required. Please log in again.');
+  }
+
+  return response;
+};
+
+/** authFetch + parse JSON on success */
+const authFetchJson = async (url, options = {}) => {
+  const response = await authFetch(url, options);
+  if (!response.ok) {
+    const msg = await parseErrorMessage(response);
+    throw new Error(msg || `Request failed: ${response.status}`);
   }
   return response.json();
 };
@@ -87,13 +206,14 @@ const apiService = {
       });
       
       const data = await handleResponse(response);
-      
-      // Store token
-      if (data.token) {
-        localStorage.setItem('genoToken', data.token);
-        localStorage.setItem('genoUser', JSON.stringify(data.user));
+
+      if (!data.token || !isValidJwt(data.token)) {
+        throw new Error(
+          'Login succeeded but the server returned an invalid token. ' +
+          'Redeploy the backend with the latest auth fix, then log in again.'
+        );
       }
-      
+
       return data;
     } catch (error) {
       console.error('Login failed:', error);
@@ -105,24 +225,13 @@ const apiService = {
    * Logout - clear stored credentials
    */
   logout: () => {
-    localStorage.removeItem('genoToken');
-    localStorage.removeItem('genoUser');
-    localStorage.removeItem('genoLoggedIn');
-    localStorage.removeItem('genoCompanyId');
-    sessionStorage.removeItem('genoToken');
-    sessionStorage.removeItem('genoUser');
-    sessionStorage.removeItem('genoLoggedIn');
-    sessionStorage.removeItem('genoCompanyId');
+    clearAuthStorage();
   },
 
   /**
-   * Check if user is authenticated
+   * Check if user is authenticated (valid JWT present)
    */
-  isAuthenticated: () => {
-    return !!(getAuthToken() || 
-      localStorage.getItem('genoLoggedIn') === 'true' ||
-      sessionStorage.getItem('genoLoggedIn') === 'true');
-  },
+  isAuthenticated: () => !!getAuthToken(),
 
   /**
    * Upload and analyze CSV file (Flask two-step process)
@@ -134,77 +243,49 @@ const apiService = {
    */
   analyzeCSV: async (file, onProgress = null) => {
     try {
-      const token = localStorage.getItem('genoToken') || sessionStorage.getItem('genoToken');
-      if (!token) {
-        throw new Error('Authentication required');
+      if (!getAuthToken()) {
+        throw new Error('Authentication required. Please log in again.');
       }
 
-      // Step 1: Upload file
+      // Step 1: Upload file (multipart — Authorization only, no Content-Type)
       if (onProgress) onProgress(10);
-      
+
       const formData = new FormData();
       formData.append('file', file);
-      
-      const uploadResponse = await fetch(`${API_BASE_URL}/api/files/upload`, {
+
+      const uploadData = await authFetchJson(`${API_BASE_URL}/api/files/upload`, {
         method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
         body: formData,
       });
-      
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json().catch(() => ({}));
-        throw new Error(errorData.error || `Upload failed: ${uploadResponse.status}`);
-      }
-      
-      const uploadData = await uploadResponse.json();
+
       const fileId = uploadData.file?.file_id;
-      
       if (!fileId) {
         throw new Error('File upload succeeded but no file_id returned');
       }
-      
+
       if (onProgress) onProgress(50);
-      
-      // Step 2: Process file
-      const processResponse = await fetch(`${API_BASE_URL}/api/reports/process/${fileId}`, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!processResponse.ok) {
-        const errorData = await processResponse.json().catch(() => ({}));
-        throw new Error(errorData.error || `Processing failed: ${processResponse.status}`);
-      }
-      
+
+      // Step 2: Run analysis (fresh JWT read; explicit JSON body)
+      const processData = await authFetchJson(
+        `${API_BASE_URL}/api/reports/process/${encodeURIComponent(fileId)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+        }
+      );
+
       if (onProgress) onProgress(90);
-      
-      const processData = await processResponse.json();
-      
-      // Get the full report data
+
       const sequenceId = processData.report?.sequence_id;
       if (!sequenceId) {
         throw new Error('Processing succeeded but no sequence_id returned');
       }
-      
-      const reportResponse = await fetch(`${API_BASE_URL}/api/reports/${sequenceId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (!reportResponse.ok) {
-        throw new Error('Failed to retrieve report data');
-      }
-      
-      const reportData = await reportResponse.json();
+
+      // Step 3: Fetch full report
+      const reportData = await authFetchJson(
+        `${API_BASE_URL}/api/reports/${encodeURIComponent(sequenceId)}`,
+        { method: 'GET' }
+      );
       
       // Extract actual risk score from analysis_result (already a percentage 0-100)
       const analysisResult = reportData.analysis_result || {};
@@ -265,12 +346,10 @@ const apiService = {
    */
   getReport: async (sequenceId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reports/${sequenceId}`, {
-        method: 'GET',
-        headers: getHeaders(true),
-      });
-      
-      return handleResponse(response);
+      return authFetchJson(
+        `${API_BASE_URL}/api/reports/${encodeURIComponent(sequenceId)}`,
+        { method: 'GET' }
+      );
     } catch (error) {
       console.error('Failed to get report:', error);
       throw error;
@@ -284,15 +363,15 @@ const apiService = {
    */
   downloadReportPDF: async (sequenceId) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reports/${sequenceId}/pdf`, {
-        method: 'GET',
-        headers: getHeaders(true),
-      });
-      
+      const response = await authFetch(
+        `${API_BASE_URL}/api/reports/${encodeURIComponent(sequenceId)}/pdf`,
+        { method: 'GET' }
+      );
+
       if (!response.ok) {
         throw new Error(`Failed to download PDF: ${response.status}`);
       }
-      
+
       return response.blob();
     } catch (error) {
       console.error('Failed to download PDF:', error);
@@ -324,14 +403,9 @@ const apiService = {
    */
   getDashboardSummary: async () => {
     try {
-      // Get all reports to calculate summary
-      const response = await fetch(`${API_BASE_URL}/api/reports`, {
+      const data = await authFetchJson(`${API_BASE_URL}/api/reports`, {
         method: 'GET',
-        mode: 'cors',
-        headers: getHeaders(true),
       });
-      
-      const data = await handleResponse(response);
       const reports = data.reports || [];
       
       // Calculate statistics
@@ -364,13 +438,9 @@ const apiService = {
    */
   getRecentSamples: async (limit = 10) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reports`, {
+      const data = await authFetchJson(`${API_BASE_URL}/api/reports`, {
         method: 'GET',
-        mode: 'cors',
-        headers: getHeaders(true),
       });
-      
-      const data = await handleResponse(response);
       const reports = data.reports || [];
       
       // Transform reports to match expected format
@@ -404,24 +474,7 @@ const apiService = {
  * @returns {Promise<Object>} { samples: [], stats: {} }
  */
 export async function fetchDashboard() {
-  const token = localStorage.getItem('genoToken') || sessionStorage.getItem('genoToken');
-  if (!token) {
-    throw new Error('Authentication required');
-  }
-  
-  const res = await fetch(`${API_BASE_URL}/api/reports`, {
-    method: 'GET',
-    mode: 'cors',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  
-  if (!res.ok) {
-    throw new Error(`Dashboard request failed with status ${res.status}`);
-  }
-  
-  const data = await res.json();
+  const data = await authFetchJson(`${API_BASE_URL}/api/reports`, { method: 'GET' });
   const reports = data.reports || [];
   
   // Transform reports to match expected dashboard format
@@ -486,14 +539,9 @@ export async function fetchHistory({ limit = 100, riskLevel, sortBy = 'created_a
   params.append('sort_by', sortBy);
   params.append('order', order);
   
-  const res = await fetch(`${API_BASE_URL}/history?${params.toString()}`, {
+  return authFetchJson(`${API_BASE_URL}/history?${params.toString()}`, {
     method: 'GET',
-    mode: 'cors',
   });
-  if (!res.ok) {
-    throw new Error(`History request failed with status ${res.status}`);
-  }
-  return res.json();
 }
 
 export default apiService;
@@ -511,3 +559,5 @@ export const {
   getDashboardSummary,
   getRecentSamples,
 } = apiService;
+
+

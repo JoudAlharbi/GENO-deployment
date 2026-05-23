@@ -68,6 +68,16 @@ curl https://YOUR-API.onrender.com/api/health
 
 Expect `status: ok` when DB is reachable.
 
+**Auth check (must return a JWT starting with `eyJ`, not `demo-token`):**
+
+```bash
+curl -s -X POST https://YOUR-API.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"employee_id":"DEMO01","password":"demo123"}'
+```
+
+If you still see `"token": "demo-token"`, redeploy the backend from the latest `main` branch (auth fix not deployed yet).
+
 **Note:** Render free tier sleeps after inactivity; first request may take ~30–60s.
 
 ---

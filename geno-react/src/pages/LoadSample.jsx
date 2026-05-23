@@ -12,10 +12,7 @@ export default function LoadSample() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isLoggedIn =
-      localStorage.getItem("genoLoggedIn") === "true" ||
-      sessionStorage.getItem("genoLoggedIn") === "true";
-    if (!isLoggedIn) {
+    if (!apiService.isAuthenticated()) {
       navigate("/login");
     }
   }, [navigate]);
@@ -74,19 +71,11 @@ export default function LoadSample() {
         });
       }, 200);
 
-      // Check token
-  const token =
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token") ||
-    localStorage.getItem("genoToken") ||
-    sessionStorage.getItem("genoToken");
+      if (!apiService.isAuthenticated()) {
+        throw new Error("Authentication required. Please log in again.");
+      }
 
-  if (!token) {
-    throw new Error("Authentication required");
-  }
-
-  // Call API
-  const result = await apiService.analyzeCSV(selectedFile);
+      const result = await apiService.analyzeCSV(selectedFile);
       
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -101,9 +90,13 @@ export default function LoadSample() {
 
     } catch (err) {
       console.error("Analysis error:", err);
-      setError(err.message || "Analysis failed. Please check if the backend is running.");
+      const msg = err.message || "Analysis failed. Please check if the backend is running.";
+      setError(msg);
       setIsLoading(false);
       setUploadProgress(0);
+      if (msg.includes("log in") || msg.includes("Authentication") || msg.includes("invalid token")) {
+        setTimeout(() => navigate("/login"), 2000);
+      }
     }
   };
 

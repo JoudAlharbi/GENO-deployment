@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiService from "../services/api";
+import apiService, { clearAuthStorage, storeAuthSession } from "../services/api";
 
 export default function Login() {
   const [companyId, setCompanyId] = useState("");
@@ -24,29 +24,11 @@ export default function Login() {
 
     try {
       // Call backend API for authentication
+      clearAuthStorage();
       const response = await apiService.login(companyId.trim(), password);
-      
-      // API service stores token and user in localStorage by default
-      // Adjust storage based on "remember me" preference
+      storeAuthSession(response.token, response.user, remember);
       const storage = remember ? localStorage : sessionStorage;
-      
-      if (remember) {
-        // Keep in localStorage (already stored by API service)
-        localStorage.setItem("genoLoggedIn", "true");
-        localStorage.setItem("genoCompanyId", companyId.trim());
-      } else {
-        // Move to sessionStorage and remove from localStorage
-        sessionStorage.setItem("genoToken", response.token);
-        sessionStorage.setItem("genoUser", JSON.stringify(response.user));
-        sessionStorage.setItem("genoLoggedIn", "true");
-        sessionStorage.setItem("genoCompanyId", companyId.trim());
-        
-        // Remove from localStorage since user doesn't want to be remembered
-        localStorage.removeItem("genoToken");
-        localStorage.removeItem("genoUser");
-        localStorage.removeItem("genoLoggedIn");
-        localStorage.removeItem("genoCompanyId");
-      }
+      storage.setItem("genoCompanyId", companyId.trim());
 
       setIsLoading(false);
       navigate("/dashboard");

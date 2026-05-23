@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { formatPercentEn } from "../utils/formatNumber";
 import "../styles/report.css";
 import { API_BASE_URL } from "../config/apiBase";
+import { authFetch } from "../services/api";
 
 // Error Boundary Component - catches render errors and prevents blank page
 class ErrorBoundary extends Component {
@@ -263,15 +264,6 @@ export default function ViewReport() {
   const handleDownloadPDF = async () => {
     console.log("[PDF] Button clicked");
     try {
-      const token =
-        localStorage.getItem("genoToken") ||
-        sessionStorage.getItem("genoToken");
-
-      if (!token) {
-        alert("Please log in again to download the report.");
-        return;
-      }
-
       if (!dbSequenceId || dbSequenceId === "N/A") {
         console.error("No valid dbSequenceId for PDF download:", dbSequenceId);
         alert("Cannot download PDF: missing report ID.");
@@ -280,14 +272,9 @@ export default function ViewReport() {
 
       console.log("[PDF] Download clicked. dbSequenceId =", dbSequenceId);
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/reports/${dbSequenceId}/pdf`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await authFetch(
+        `${API_BASE_URL}/api/reports/${encodeURIComponent(dbSequenceId)}/pdf`,
+        { method: "GET" }
       );
 
       console.log("[PDF] Response status:", response.status);

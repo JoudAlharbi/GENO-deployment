@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CountUp from "../components/CountUp";
 import DashboardAnalytics from "../components/DashboardAnalytics";
-import { fetchDashboard } from "../services/api";
+import apiService, { fetchDashboard } from "../services/api";
 import { formatPercentEn } from "../utils/formatNumber";
 
 /**
@@ -36,11 +36,7 @@ export default function Dashboard() {
 
   // Auth check
   useEffect(() => {
-    const isLoggedIn =
-      localStorage.getItem("genoLoggedIn") === "true" ||
-      sessionStorage.getItem("genoLoggedIn") === "true";
-
-    if (!isLoggedIn) {
+    if (!apiService.isAuthenticated()) {
       navigate("/login");
     }
   }, [navigate]);
@@ -60,7 +56,11 @@ export default function Dashboard() {
       } catch (err) {
         console.error("Dashboard load error:", err);
         if (!isMounted) return;
-        setError("Failed to load dashboard data");
+        const msg = err.message || "Failed to load dashboard data";
+        setError(msg);
+        if (msg.includes("log in") || msg.includes("Authentication")) {
+          navigate("/login");
+        }
         setSamples([]);
         setStats({ total_analyses: 0, high_risk_samples: 0, high_risk_rate: 0 });
       } finally {
