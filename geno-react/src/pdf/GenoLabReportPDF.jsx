@@ -9,8 +9,8 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 
-/** Max gene rows — leave room for Section C + footer blocks on one A4 page */
-const MAX_GENE_ROWS = 4;
+/** Max gene rows on one A4 page (balanced with tighter vertical rhythm) */
+const MAX_GENE_ROWS = 5;
 
 const defaultClinicalLines = (riskLevel) => {
   const level = (riskLevel || 'LOW').toUpperCase();
@@ -109,12 +109,13 @@ const resolveMethodologyLines = (methodology, modelName) => {
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#FFFFFF',
-    paddingTop: 10,
-    paddingBottom: 8,
-    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingHorizontal: 16,
     color: '#000000',
     fontSize: 7.5,
     fontFamily: 'Helvetica',
+    flexDirection: 'column',
   },
   labSubtitle: {
     fontSize: 8,
@@ -122,13 +123,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: '#777777',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 3,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   headerLeft: {
     flexDirection: 'column',
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginTop: 2,
+    marginTop: 0,
   },
   riskBoxSpacer: {
     width: 6,
@@ -197,9 +198,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eeeeee',
     borderRadius: 4,
-    paddingVertical: 5,
+    paddingVertical: 4,
     paddingHorizontal: 10,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   metaItem: {
     flex: 1,
@@ -209,48 +210,61 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     textTransform: 'uppercase',
     color: '#999999',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   metaValue: {
     fontSize: 7.5,
     color: '#111111',
   },
-  section: {
-    marginBottom: 4,
+  reportBody: {
+    flexDirection: 'column',
   },
-  clinicalBullet: {
-    fontSize: 7,
-    color: '#333333',
-    lineHeight: 1.24,
-    marginBottom: 1.5,
+  section: {
+    marginBottom: 3,
+  },
+  sectionTight: {
+    marginBottom: 1,
+  },
+  sectionHeader: {
+    marginBottom: 2,
   },
   sectionTitle: {
     fontSize: 7,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 1,
+    marginBottom: 0,
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   sectionSubtitle: {
     fontSize: 7,
     fontWeight: 'bold',
     color: '#333333',
-    marginBottom: 3,
+    marginBottom: 0,
     textTransform: 'uppercase',
   },
   bodyText: {
     fontSize: 7.5,
     color: '#333333',
-    lineHeight: 1.28,
-    marginBottom: 2,
+    lineHeight: 1.3,
+    marginBottom: 0,
   },
-  bold: {
-    fontWeight: 'bold',
+  clinicalBullet: {
+    fontSize: 7,
+    color: '#333333',
+    lineHeight: 1.26,
+    marginBottom: 1,
+  },
+  sectionRule: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#E8E8E8',
+    marginTop: 1,
+    marginBottom: 3,
   },
   geneTable: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    marginTop: 2,
+    marginTop: 1,
   },
   geneTableHeaderRow: {
     flexDirection: 'row',
@@ -279,41 +293,49 @@ const styles = StyleSheet.create({
     fontSize: 7,
     color: '#000000',
   },
+  supplementaryBlock: {
+    marginTop: 0,
+  },
   bottomRow: {
     flexDirection: 'row',
-    marginTop: 4,
+    alignItems: 'stretch',
   },
   bottomCol: {
     flex: 1,
-    marginRight: 6,
+    marginRight: 8,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: '#E0E0E0',
     borderRadius: 3,
-    paddingVertical: 5,
-    paddingHorizontal: 7,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     backgroundColor: '#FAFAFA',
+    minHeight: 88,
+  },
+  bottomColLast: {
+    marginRight: 0,
   },
   bottomColTitle: {
     fontSize: 7,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 3,
+    marginBottom: 2,
     textTransform: 'uppercase',
+    letterSpacing: 0.2,
   },
   bottomBullet: {
     fontSize: 6.5,
     color: '#333333',
-    lineHeight: 1.22,
-    marginBottom: 1.5,
+    lineHeight: 1.24,
+    marginBottom: 1,
   },
   labNoteText: {
     fontSize: 6.5,
     color: '#333333',
-    lineHeight: 1.22,
+    lineHeight: 1.26,
   },
   footer: {
-    marginTop: 5,
-    paddingTop: 4,
+    marginTop: 4,
+    paddingTop: 3,
     borderTopWidth: 0.5,
     borderTopColor: '#E0E0E0',
     textAlign: 'center',
@@ -324,6 +346,13 @@ const styles = StyleSheet.create({
     lineHeight: 1.2,
   },
 });
+
+const SectionHeading = ({ label, title }) => (
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionTitle}>{label}</Text>
+    <Text style={styles.sectionSubtitle}>{title}</Text>
+  </View>
+);
 
 const formatDateTime = (isoString) => {
   const d = isoString ? new Date(isoString) : new Date();
@@ -446,19 +475,21 @@ const GenoLabReportPDF = ({
           </View>
         </View>
 
+        <View style={styles.reportBody}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Section A</Text>
-          <Text style={styles.sectionSubtitle}>Risk Summary</Text>
-          <Text style={styles.bodyText}>{finalSummaryText}</Text>
+          <SectionHeading label="Section A" title="Risk Summary" />
+          <Text style={styles.bodyText} wrap>{finalSummaryText}</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Section B</Text>
-          <Text style={styles.sectionSubtitle}>
-            {isHighRisk
-              ? 'High-Impact Addiction-Related Genes'
-              : 'Addiction-Related Genes'}
-          </Text>
+          <SectionHeading
+            label="Section B"
+            title={
+              isHighRisk
+                ? 'High-Impact Addiction-Related Genes'
+                : 'Addiction-Related Genes'
+            }
+          />
           <View style={styles.geneTable}>
             <View style={styles.geneTableHeaderRow}>
               <Text style={styles.geneTableHeaderCell}>Gene</Text>
@@ -504,9 +535,8 @@ const GenoLabReportPDF = ({
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Section C</Text>
-          <Text style={styles.sectionSubtitle}>Clinical Interpretation</Text>
+        <View style={styles.sectionTight}>
+          <SectionHeading label="Section C" title="Clinical Interpretation" />
           {clinicalLines.map((line, i) => (
             <Text key={`clin-${i}`} style={styles.clinicalBullet} wrap>
               • {line}
@@ -514,24 +544,29 @@ const GenoLabReportPDF = ({
           ))}
         </View>
 
-        <View style={styles.bottomRow}>
-          <View style={styles.bottomCol}>
-            <Text style={styles.bottomColTitle}>Section D — Methodology</Text>
-            {methodologyLines.map((line, i) => (
-              <Text key={`meth-${i}`} style={styles.bottomBullet}>
-                • {line}
+        <View style={styles.sectionRule} />
+
+        <View style={styles.supplementaryBlock}>
+          <View style={styles.bottomRow}>
+            <View style={styles.bottomCol}>
+              <Text style={styles.bottomColTitle}>Section D — Methodology</Text>
+              {methodologyLines.map((line, i) => (
+                <Text key={`meth-${i}`} style={styles.bottomBullet} wrap>
+                  • {line}
+                </Text>
+              ))}
+            </View>
+            <View style={[styles.bottomCol, styles.bottomColLast]}>
+              <Text style={styles.bottomColTitle}>Laboratory Note</Text>
+              <Text style={styles.labNoteText} wrap>
+                This report estimates genetic susceptibility from gene expression
+                markers. Results indicate predisposition, not diagnosis. Decisions
+                require qualified healthcare professionals and full clinical
+                context. GENO AI tools do not replace medical judgment.
               </Text>
-            ))}
+            </View>
           </View>
-          <View style={[styles.bottomCol, { marginRight: 0 }]}>
-            <Text style={styles.bottomColTitle}>Laboratory Note</Text>
-            <Text style={styles.labNoteText}>
-              This report estimates genetic susceptibility from gene expression
-              markers. Results indicate predisposition, not diagnosis. Decisions
-              require qualified healthcare professionals and full clinical
-              context. GENO AI tools do not replace medical judgment.
-            </Text>
-          </View>
+        </View>
         </View>
 
         <View style={styles.footer}>
