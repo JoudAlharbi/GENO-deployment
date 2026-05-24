@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "users": {
+    "demo": {
+      "userid": "demo",
+      "email": "demo@geno-lab.example",
+      "password": "",
+      "fullname": "Portfolio Demo User",
+      "employeeid": "demo",
+      "isfirstlogin": false,
+      "failedloginattempts": 0
+    }
+  },
+  "dna_files": {},
+  "uploads": [],
+  "reports": {
+    "SEQ-TEST-001": {
+      "sequence_id": "SEQ-TEST-001",
+      "accuracy": 92.5,
+      "variant_info": "v",
+      "fullname": "Demo",
+      "patientinfo": "p",
+      "age": 30,
+      "gender": "M",
+      "analysis_result": "{}",
+      "pdf_path": null,
+      "saved_date": "2026-05-24 18:56:45.959620"
+    }
+  },
+  "contains": [],
+  "views": []
+}

@@ -29,6 +29,7 @@ geno-react copy/
 genoproject/
 
 # Generated / runtime data
+backend/data/demo/
 backend/data/analyses.json
 backend/counts.txt
 counts.txt

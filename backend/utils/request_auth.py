@@ -15,9 +15,12 @@ def get_current_user():
     """In demo mode always return the public demo lab user (no JWT)."""
     if Config.DEMO_MODE:
         from stores.memory_store import DEMO_EMAIL, DEMO_FULLNAME, DEMO_USER_ID
+        uid = Config.DEMO_USER_ID or DEMO_USER_ID
         return {
-            'user_id': Config.DEMO_USER_ID or DEMO_USER_ID,
+            'user_id': uid,
+            'employee_id': uid,
             'email': DEMO_EMAIL,
+            'fullname': DEMO_FULLNAME,
         }
     from flask import request
     from utils.auth_utils import verify_token

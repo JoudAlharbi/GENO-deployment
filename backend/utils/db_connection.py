@@ -40,11 +40,17 @@ def check_database_connection():
     Returns (ok: bool, message: str, details: dict|None)
     """
     if Config.DEMO_MODE:
+        from stores.demo_persistence import get_demo_store_path
+        from stores import memory_store
+
+        path = get_demo_store_path()
         return True, 'demo_mode', {
-            'database': 'in-memory',
+            'database': 'demo-json',
             'postgres_version': 'N/A (portfolio demo)',
-            'host': 'memory',
+            'host': str(path.parent),
             'port': '0',
+            'demo_store': str(path),
+            'report_count': len(memory_store.get_all_reports()),
         }
     try:
         conn = get_db_connection()

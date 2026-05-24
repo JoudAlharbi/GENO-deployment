@@ -1,13 +1,16 @@
 """
-In-memory storage for portfolio demo mode (no PostgreSQL).
-Thread-safe dict-backed store matching RealDictCursor lowercase keys.
+Demo-mode storage: in-memory with JSON file persistence.
+Shared demo user sees all analyses across visitors/restarts.
 """
 
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import datetime
 from threading import Lock
 from typing import Any, Optional
+
+from stores.demo_persistence import load_demo_state, save_demo_state
 
 DEMO_USER_ID = 'demo'
 DEMO_EMAIL = 'demo@geno-lab.example'
@@ -20,6 +23,7 @@ _uploads: list[dict] = []
 _reports: dict[str, dict] = {}
 _contains: list[dict] = []
 _views: list[dict] = []
+_loaded = False
 
 
 def _now():
@@ -30,18 +34,62 @@ def _row(**kwargs):
     return {k.lower(): v for k, v in kwargs.items()}
 
 
+def _snapshot() -> dict[str, Any]:
+    return {
+        'users': deepcopy(_users),
+        'dna_files': deepcopy(_dna_files),
+        'uploads': deepcopy(_uploads),
+        'reports': deepcopy(_reports),
+        'contains': deepcopy(_contains),
+        'views': deepcopy(_views),
+    }
+
+
+def _persist():
+    save_demo_state(_snapshot())
+
+
+def _ensure_demo_user():
+    _users[DEMO_USER_ID] = _row(
+        UserID=DEMO_USER_ID,
+        Email=DEMO_EMAIL,
+        Password='',
+        Fullname=DEMO_FULLNAME,
+        EmployeeID=DEMO_USER_ID,
+        IsFirstLogin=False,
+        FailedLoginAttempts=0,
+    )
+
+
+def _apply_state(data: dict[str, Any]) -> None:
+    global _users, _dna_files, _uploads, _reports, _contains, _views
+    _users = data.get('users') or {}
+    _dna_files = data.get('dna_files') or {}
+    _uploads = data.get('uploads') or []
+    _reports = data.get('reports') or {}
+    _contains = data.get('contains') or []
+    _views = data.get('views') or []
+    _ensure_demo_user()
+
+
 def init_store():
-    """Ensure demo user exists."""
+    """Load persisted demo data or seed empty store."""
+    global _loaded
     with _lock:
-        _users[DEMO_USER_ID] = _row(
-            UserID=DEMO_USER_ID,
-            Email=DEMO_EMAIL,
-            Password='',
-            Fullname=DEMO_FULLNAME,
-            EmployeeID=DEMO_USER_ID,
-            IsFirstLogin=False,
-            FailedLoginAttempts=0,
-        )
+        if _loaded:
+            return
+        stored = load_demo_state()
+        if stored:
+            _apply_state(stored)
+            print(
+                f'[GENO] Demo store loaded: {len(_reports)} report(s), '
+                f'{len(_uploads)} upload(s)'
+            )
+        else:
+            _ensure_demo_user()
+            _persist()
+            print('[GENO] Demo store initialized (new persistent file)')
+        _loaded = True
 
 
 # --- Users ---
@@ -70,6 +118,7 @@ def upsert_user(user_id: str, email: str, fullname: str, employee_id: str, passw
             IsFirstLogin=False,
             FailedLoginAttempts=0,
         )
+        _persist()
 
 
 # --- Files ---
@@ -84,6 +133,7 @@ def create_dna_file(
     extension: str,
 ):
     with _lock:
+        owner = DEMO_USER_ID
         _dna_files[file_id] = _row(
             FileID=file_id,
             original_name=original_name,
@@ -93,7 +143,8 @@ def create_dna_file(
             extension=extension,
             upload_date=_now(),
         )
-        _uploads.append(_row(UserID=user_id, FileID=file_id, upload_date=_now()))
+        _uploads.append(_row(UserID=owner, FileID=file_id, upload_date=_now()))
+        _persist()
 
 
 def get_file_by_id(file_id: str) -> Optional[dict]:
@@ -118,7 +169,7 @@ def get_file_by_id(file_id: str) -> Optional[dict]:
 
 def get_user_files(user_id: str) -> list[dict]:
     with _lock:
-        file_ids = [u['fileid'] for u in _uploads if u['userid'] == user_id]
+        file_ids = [u['fileid'] for u in _uploads if u['userid'] in (user_id, DEMO_USER_ID)]
         return [
             _row(FileID=fid, upload_date=next(u['upload_date'] for u in _uploads if u['fileid'] == fid))
             for fid in file_ids
@@ -130,12 +181,14 @@ def delete_file_record(file_id: str):
         _dna_files.pop(file_id, None)
         _uploads[:] = [u for u in _uploads if u['fileid'] != file_id]
         _contains[:] = [c for c in _contains if c['fileid'] != file_id]
+        _persist()
 
 
 def link_file_to_report(file_id: str, sequence_id: str):
     with _lock:
         if not any(c['fileid'] == file_id and c['sequence_id'] == sequence_id for c in _contains):
             _contains.append(_row(sequence_id=sequence_id, FileID=file_id))
+            _persist()
 
 
 def get_file_report(file_id: str) -> Optional[dict]:
@@ -177,12 +230,14 @@ def create_report(
             pdf_path=pdf_path,
             saved_date=_now(),
         )
+        _persist()
 
 
 def update_report_pdf_path(sequence_id: str, pdf_path: str):
     with _lock:
         if sequence_id in _reports:
             _reports[sequence_id]['pdf_path'] = pdf_path
+            _persist()
 
 
 def get_report_by_id(sequence_id: str) -> Optional[dict]:
@@ -193,26 +248,21 @@ def get_report_by_id(sequence_id: str) -> Optional[dict]:
 
 def get_all_reports() -> list[dict]:
     with _lock:
-        return sorted(_reports.values(), key=lambda r: r['sequence_id'], reverse=True)
-
-
-def get_reports_for_user(user_id: str) -> list[dict]:
-    with _lock:
-        file_ids = {u['fileid'] for u in _uploads if u['userid'] == user_id}
-        seq_ids = {c['sequence_id'] for c in _contains if c['fileid'] in file_ids}
         return sorted(
-            [_reports[s] for s in seq_ids if s in _reports],
-            key=lambda r: r['sequence_id'],
+            [dict(r) for r in _reports.values()],
+            key=lambda r: str(r.get('sequence_id', '')),
             reverse=True,
         )
 
 
+def get_reports_for_user(user_id: str) -> list[dict]:
+    """Shared demo pool — all visitors see every demo analysis."""
+    return get_all_reports()
+
+
 def user_has_report_access(user_id: str, sequence_id: str) -> bool:
     with _lock:
-        file_ids = {u['fileid'] for u in _uploads if u['userid'] == user_id}
-        return any(
-            c['sequence_id'] == sequence_id and c['fileid'] in file_ids for c in _contains
-        )
+        return sequence_id in _reports
 
 
 def record_report_view(user_id: str, sequence_id: str):
@@ -220,8 +270,10 @@ def record_report_view(user_id: str, sequence_id: str):
         for v in _views:
             if v['userid'] == user_id and v['sequence_id'] == sequence_id:
                 v['view_date'] = _now()
+                _persist()
                 return
         _views.append(_row(UserID=user_id, sequence_id=sequence_id, view_date=_now()))
+        _persist()
 
 
 # Legacy execute_query shim for auth password updates
@@ -240,6 +292,7 @@ def execute_query(query: str, params=None, fetch=False) -> Any:
         with _lock:
             if uid in _users:
                 _users[uid]['password'] = params[0]
+                _persist()
         return True
 
     if 'select distinct r.' in q and 'from reports' in q and fetch:

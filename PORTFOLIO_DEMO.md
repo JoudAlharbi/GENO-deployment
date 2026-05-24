@@ -16,6 +16,18 @@ The project runs in **open demo mode** by default: no login, no PostgreSQL, in-m
 
 No `DATABASE_URL` required.
 
+### Persistent demo data (recommended on Render)
+
+Set a persistent disk and point `DATA_DIR` at it so uploads and analyses survive redeploys:
+
+```yaml
+envVars:
+  - key: DATA_DIR
+    value: /var/data
+```
+
+Demo analyses/metadata are stored in `{DATA_DIR}/demo/demo_store.json`. All visitors share the same demo history on that instance.
+
 ### Vercel (frontend)
 
 1. Root directory: `geno-react`
