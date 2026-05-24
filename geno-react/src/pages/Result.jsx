@@ -415,24 +415,22 @@ export default function Result() {
 
       {/* Action Buttons */}
       <div className="result-actions">
-        <ReportPdfDownloadButton analysisResult={analysisResult} variant="result" />
-        
-        <button
-          onClick={handleView}
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            color: "#ffffff",
-            padding: "14px 30px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            fontWeight: "500",
-            transition: "all 0.3s ease"
-          }}
-        >
-          View Full Report
-        </button>
+        <div className="result-actions__item">
+          <ReportPdfDownloadButton
+            analysisResult={analysisResult}
+            variant="result"
+            className="result-actions__btn"
+          />
+        </div>
+        <div className="result-actions__item">
+          <button
+            type="button"
+            className="result-actions__btn btn-result-secondary"
+            onClick={handleView}
+          >
+            View Full Report
+          </button>
+        </div>
       </div>
     </main>
   );

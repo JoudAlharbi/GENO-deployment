@@ -1001,6 +1001,58 @@ h1, h2, h3 {
    RESULT PAGE
 =========================== */
 
+.result-actions {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.result-actions__item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+}
+
+.result-actions__item > a {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  text-decoration: none;
+}
+
+.result-actions__btn {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-result-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.btn-result-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
 .result-content {
   padding-top: 150px;
   padding-bottom: 120px;
