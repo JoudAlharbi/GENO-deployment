@@ -295,24 +295,20 @@ const styles = StyleSheet.create({
   },
   supplementaryBlock: {
     marginTop: 0,
+    flexDirection: 'column',
   },
-  bottomRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
-  bottomCol: {
-    flex: 1,
-    marginRight: 8,
+  bottomPanel: {
+    width: '100%',
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 3,
-    paddingVertical: 6,
+    paddingVertical: 5,
     paddingHorizontal: 8,
     backgroundColor: '#FAFAFA',
-    minHeight: 88,
+    marginBottom: 3,
   },
-  bottomColLast: {
-    marginRight: 0,
+  bottomPanelLast: {
+    marginBottom: 0,
   },
   bottomColTitle: {
     fontSize: 7,
@@ -547,24 +543,22 @@ const GenoLabReportPDF = ({
         <View style={styles.sectionRule} />
 
         <View style={styles.supplementaryBlock}>
-          <View style={styles.bottomRow}>
-            <View style={styles.bottomCol}>
-              <Text style={styles.bottomColTitle}>Section D — Methodology</Text>
-              {methodologyLines.map((line, i) => (
-                <Text key={`meth-${i}`} style={styles.bottomBullet} wrap>
-                  • {line}
-                </Text>
-              ))}
-            </View>
-            <View style={[styles.bottomCol, styles.bottomColLast]}>
-              <Text style={styles.bottomColTitle}>Laboratory Note</Text>
-              <Text style={styles.labNoteText} wrap>
-                This report estimates genetic susceptibility from gene expression
-                markers. Results indicate predisposition, not diagnosis. Decisions
-                require qualified healthcare professionals and full clinical
-                context. GENO AI tools do not replace medical judgment.
+          <View style={styles.bottomPanel}>
+            <Text style={styles.bottomColTitle}>Section D — Methodology</Text>
+            {methodologyLines.map((line, i) => (
+              <Text key={`meth-${i}`} style={styles.bottomBullet} wrap>
+                • {line}
               </Text>
-            </View>
+            ))}
+          </View>
+          <View style={[styles.bottomPanel, styles.bottomPanelLast]}>
+            <Text style={styles.bottomColTitle}>Laboratory Note</Text>
+            <Text style={styles.labNoteText} wrap>
+              This report estimates genetic susceptibility from gene expression
+              markers. Results indicate predisposition, not diagnosis. Decisions
+              require qualified healthcare professionals and full clinical
+              context. GENO AI tools do not replace medical judgment.
+            </Text>
           </View>
         </View>
         </View>
