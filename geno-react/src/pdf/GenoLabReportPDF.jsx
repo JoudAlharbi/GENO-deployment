@@ -124,11 +124,11 @@ const GenoLabReportPDF = ({
         <View style={styles.pageInner}>
           <Text style={styles.labSubtitle}>GENETIC ANALYSIS LABORATORY</Text>
 
-          <View style={styles.headerRow}>
-            <View style={styles.headerLeft}>
+          <View style={styles.headerBlock}>
+            <View style={styles.logoRow}>
               <Image src="/BlackLogo.png" style={styles.logo} />
             </View>
-            <View style={styles.headerRight}>
+            <View style={styles.riskHeroRow}>
               <View
                 style={[
                   styles.riskLevelBox,
@@ -161,7 +161,7 @@ const GenoLabReportPDF = ({
                 {finalLaboratoryId}
               </Text>
             </View>
-            <View style={styles.metaItem}>
+            <View style={[styles.metaItem, styles.metaItemLast]}>
               <Text style={styles.metaLabel}>Generated</Text>
               <Text style={styles.metaValue} wrap>
                 {formatDateTime(generatedAt)}
