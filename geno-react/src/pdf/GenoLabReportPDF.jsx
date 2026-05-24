@@ -1,5 +1,5 @@
-// src/pdf/GenoLabReportPDF.jsx
-import React from "react";
+// src/pdf/GenoLabReportPDF.jsx — single-page A4 laboratory report
+import React from 'react';
 import {
   Document,
   Page,
@@ -7,230 +7,242 @@ import {
   View,
   Image,
   StyleSheet,
-} from "@react-pdf/renderer";
+} from '@react-pdf/renderer';
+
+/** Max gene rows so the table fits on one page with other sections */
+const MAX_GENE_ROWS = 5;
 
 const styles = StyleSheet.create({
   page: {
-    backgroundColor: "#FFFFFF",
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    color: "#000000",
-    fontSize: 9,
-    fontFamily: "Helvetica",
+    backgroundColor: '#FFFFFF',
+    paddingTop: 10,
+    paddingBottom: 8,
+    paddingHorizontal: 14,
+    color: '#000000',
+    fontSize: 7.5,
+    fontFamily: 'Helvetica',
   },
   labSubtitle: {
-    fontSize: 10,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-    color: "#777777",
-    textAlign: "center",
-    width: "100%",
-    marginTop: 0,
-    marginBottom: 6,
+    fontSize: 8,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: '#777777',
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  headerContentRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 6,
   },
   headerLeft: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    marginTop: 0,
-    paddingTop: 0,
-  },
-  logo: {
-    width: 219,
-    height: "auto",
-  },
-  headerRight: {
-    flexDirection: "column",
-    alignItems: "flex-end",
-    minWidth: 150,
-    marginTop: 25,
-  },
-  riskLevelBox: {
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: "#f35a5a",
-    backgroundColor: "#ffe9ea",
-    color: "#c52222",
-    fontWeight: "bold",
-    fontSize: 12,
-    textAlign: "center",
-  },
-  riskLevelBoxLow: {
-    borderColor: "#4caf50",
-    backgroundColor: "#e8f5e9",
-    color: "#2e7d32",
-  },
-  riskLevelCaption: {
-    marginTop: 2,
-    fontSize: 8,
-    fontWeight: "normal",
-  },
-  riskScoreBox: {
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 3,
-    borderWidth: 1,
-    borderColor: "#dddddd",
-    backgroundColor: "#f9f9f9",
-    textAlign: "center",
-  },
-  riskScoreValue: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#111111",
-  },
-  riskScoreCaption: {
-    marginTop: 2,
-    fontSize: 8,
-    fontWeight: "normal",
-    color: "#777777",
-  },
-  sampleSummaryCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#eeeeee",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginBottom: 18,
-    marginTop: 15,
-  },
-  sampleSummaryRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  sampleSummaryItem: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     flex: 1,
   },
-  sampleSummaryLabel: {
+  logo: {
+    width: 118,
+    height: 'auto',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 2,
+  },
+  riskBoxSpacer: {
+    width: 6,
+  },
+  riskLevelBox: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: '#f35a5a',
+    backgroundColor: '#ffe9ea',
+    color: '#c52222',
+    fontWeight: 'bold',
     fontSize: 9,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    color: "#999999",
-    marginBottom: 4,
+    textAlign: 'center',
+    minWidth: 72,
   },
-  sampleSummaryValue: {
-    fontSize: 10,
-    color: "#111111",
+  riskLevelBoxLow: {
+    borderColor: '#4caf50',
+    backgroundColor: '#e8f5e9',
+    color: '#2e7d32',
   },
-  detailSection: {
-    marginTop: 18,
-    marginBottom: 12,
+  riskLevelCaption: {
+    marginTop: 1,
+    fontSize: 6,
+    fontWeight: 'normal',
   },
-  detailSectionTitle: {
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 4,
-    textTransform: "uppercase",
+  riskScoreBox: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    backgroundColor: '#f9f9f9',
+    textAlign: 'center',
+    minWidth: 72,
   },
-  detailSectionSubtitle: {
-    fontSize: 8,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 8,
-    textTransform: "uppercase",
+  riskScoreValue: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#111111',
   },
-  detailSectionText: {
-    fontSize: 9,
-    color: "#333333",
-    lineHeight: 1.5,
+  riskScoreCaption: {
+    marginTop: 1,
+    fontSize: 6,
+    color: '#777777',
+  },
+  metaStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#fafafa',
+    borderWidth: 1,
+    borderColor: '#eeeeee',
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     marginBottom: 6,
   },
+  metaItem: {
+    flex: 1,
+  },
+  metaLabel: {
+    fontSize: 6,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    color: '#999999',
+    marginBottom: 2,
+  },
+  metaValue: {
+    fontSize: 7.5,
+    color: '#111111',
+  },
+  section: {
+    marginBottom: 5,
+  },
+  sectionTitle: {
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 1,
+    textTransform: 'uppercase',
+  },
+  sectionSubtitle: {
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+  },
+  bodyText: {
+    fontSize: 7.5,
+    color: '#333333',
+    lineHeight: 1.28,
+    marginBottom: 2,
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
   geneTable: {
-    marginTop: 8,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: '#E0E0E0',
+    marginTop: 2,
   },
   geneTableHeaderRow: {
-    flexDirection: "row",
-    backgroundColor: "#F5F5F5",
+    flexDirection: 'row',
+    backgroundColor: '#F5F5F5',
     borderBottomWidth: 1,
-    borderBottomColor: "#CCCCCC",
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    borderBottomColor: '#CCCCCC',
+    paddingVertical: 3,
+    paddingHorizontal: 6,
   },
   geneTableHeaderCell: {
     flex: 1,
-    fontSize: 7,
-    fontWeight: "bold",
-    color: "#000000",
-    textTransform: "uppercase",
+    fontSize: 6,
+    fontWeight: 'bold',
+    color: '#000000',
+    textTransform: 'uppercase',
   },
   geneTableRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderBottomWidth: 0.5,
-    borderBottomColor: "#E0E0E0",
-    paddingVertical: 5,
-    paddingHorizontal: 8,
+    borderBottomColor: '#E0E0E0',
+    paddingVertical: 2.5,
+    paddingHorizontal: 6,
   },
   geneTableCell: {
     flex: 1,
-    fontSize: 8,
-    color: "#000000",
+    fontSize: 7,
+    color: '#000000',
   },
-  labNoteBox: {
-    backgroundColor: "#F9F9F9",
+  bottomRow: {
+    flexDirection: 'row',
+    marginTop: 4,
+  },
+  bottomCol: {
+    flex: 1,
+    marginRight: 6,
     borderWidth: 1,
-    borderColor: "#D0D0D0",
-    padding: 12,
-    marginTop: 15,
-    marginBottom: 10,
+    borderColor: '#E8E8E8',
+    borderRadius: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+    backgroundColor: '#FAFAFA',
   },
-  labNoteTitle: {
-    fontSize: 9,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 6,
+  bottomColTitle: {
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+  },
+  bottomBullet: {
+    fontSize: 6.5,
+    color: '#333333',
+    lineHeight: 1.22,
+    marginBottom: 1.5,
   },
   labNoteText: {
-    fontSize: 8,
-    color: "#333333",
-    lineHeight: 1.5,
+    fontSize: 6.5,
+    color: '#333333',
+    lineHeight: 1.22,
   },
-  footerContainer: {
-    position: "absolute",
-    bottom: 15,
-    left: 20,
-    right: 20,
-    textAlign: "center",
-    paddingTop: 8,
+  footer: {
+    marginTop: 5,
+    paddingTop: 4,
     borderTopWidth: 0.5,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: '#E0E0E0',
+    textAlign: 'center',
   },
   footerText: {
-    fontSize: 7,
-    color: "#666666",
-    lineHeight: 1.4,
+    fontSize: 6,
+    color: '#666666',
+    lineHeight: 1.2,
   },
 });
 
-// helper: safe date
 const formatDateTime = (isoString) => {
   const d = isoString ? new Date(isoString) : new Date();
   if (Number.isNaN(d.getTime())) {
-    return new Date().toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
       hour12: true,
     });
   }
-  return d.toLocaleString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return d.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
     hour12: true,
   });
 };
@@ -240,29 +252,25 @@ const toNumberSafe = (value, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
-const toArraySafe = (value) => (Array.isArray(value) ? value : []);
-
 const GenoLabReportPDF = ({
   sampleId,
   laboratoryId,
   generatedAt,
-  riskLevel = "LOW",
+  riskLevel = 'LOW',
   riskScore = 0,
   highImpactGenes = [],
-  lowExpressionGenes = [],
-  clinicalInterpretation,
-  methodology,
   riskScorePercent,
   sequenceId,
   laboratoryUserId,
-  modelName = "geno_enet_pipeline.pkl",
+  modelName = 'geno_enet_pipeline.pkl',
   riskThresholdPercent = 75,
   summaryText,
   topGenes = [],
-  lowGenes = [],
+  clinicalInterpretation,
+  methodology,
 }) => {
-  const finalSampleId = sampleId || sequenceId || "N/A";
-  const finalLaboratoryId = laboratoryId || laboratoryUserId || "LAB-DEMO-001";
+  const finalSampleId = sampleId || sequenceId || 'N/A';
+  const finalLaboratoryId = laboratoryId || laboratoryUserId || 'LAB-DEMO-001';
 
   const numericRiskScore = (() => {
     const main = toNumberSafe(riskScore);
@@ -270,52 +278,69 @@ const GenoLabReportPDF = ({
     return toNumberSafe(riskScorePercent, 0);
   })();
 
-  const safeRiskLevel = (riskLevel && typeof riskLevel === 'string') ? riskLevel : "LOW";
-  const isHighRisk = safeRiskLevel.toUpperCase() === "HIGH";
-
-  // Filter genes based on risk score: only show genes if risk score > 1%
-  // Low risk scores (< 1%) indicate no meaningful addiction-related risk
+  const safeRiskLevel =
+    riskLevel && typeof riskLevel === 'string' ? riskLevel : 'LOW';
+  const isHighRisk = safeRiskLevel.toUpperCase() === 'HIGH';
   const shouldShowGenes = numericRiskScore > 1.0;
 
-  // Use highImpactGenes directly if provided, otherwise fallback to topGenes
-  // Priority: highImpactGenes > topGenes > []
-  // Only include genes if risk score > 0%
   const finalHighImpactGenes = shouldShowGenes
-    ? (Array.isArray(highImpactGenes) && highImpactGenes.length > 0
-        ? highImpactGenes
-        : (Array.isArray(topGenes) && topGenes.length > 0 ? topGenes : []))
-    : []; // Empty array for risk < 1%
+    ? Array.isArray(highImpactGenes) && highImpactGenes.length > 0
+      ? highImpactGenes
+      : Array.isArray(topGenes) && topGenes.length > 0
+        ? topGenes
+        : []
+    : [];
 
-  // Debug logging for PDF component
-  if (!shouldShowGenes) {
-    console.log("ℹ️ PDF Section B: Risk score is 0%, no genes will be displayed.");
-  } else if (finalHighImpactGenes.length === 0) {
-    console.warn("⚠️ PDF Section B: No high-impact genes received. highImpactGenes:", highImpactGenes, "topGenes:", topGenes);
-  }
+  const autoSummary = isHighRisk
+    ? `Elevated addiction risk profile. Risk score ${numericRiskScore.toFixed(1)}% exceeds the ${riskThresholdPercent}% high-risk threshold.`
+    : `Low addiction risk profile. Risk score ${numericRiskScore.toFixed(1)}% is below the ${riskThresholdPercent}% threshold.`;
 
-  const autoSummary =
-    isHighRisk
-      ? `The genetic analysis indicates an ELEVATED addiction risk profile based on the evaluated gene-expression markers. The calculated risk score of ${numericRiskScore.toFixed(
-          2
-        )}% exceeds the ${riskThresholdPercent}% threshold for high-risk classification.`
-      : `The genetic analysis indicates a LOW addiction risk profile with gene-expression markers mainly within reference ranges. The calculated risk score of ${numericRiskScore.toFixed(
-          2
-        )}% is below the ${riskThresholdPercent}% threshold.`;
+  const rawSummary = summaryText || autoSummary;
+  const finalSummaryText =
+    rawSummary.length > 320 ? `${rawSummary.slice(0, 317)}...` : rawSummary;
 
-  const finalSummaryText = summaryText || autoSummary;
+  const methodologyLines = methodology
+    ? [
+        methodology.algorithm && `Algorithm: ${methodology.algorithm}`,
+        methodology.preprocessing && `Preprocessing: ${methodology.preprocessing}`,
+        (methodology.featureSelection || methodology.feature_selection) &&
+          `Feature selection: ${methodology.featureSelection || methodology.feature_selection}`,
+        methodology.validation && `Validation: ${methodology.validation}`,
+        (methodology.modelVersion || methodology.model_version) &&
+          `Model: ${methodology.modelVersion || methodology.model_version}`,
+      ].filter(Boolean)
+    : [
+        'Algorithm: Elastic Net Logistic Regression',
+        'Preprocessing: StandardScaler normalization',
+        'Feature selection: SelectKBest (F-test)',
+        'Validation: k-fold cross-validation',
+        `Model: GENO AI v2.0 (${modelName})`,
+      ];
+
+  const clinicalLines = clinicalInterpretation
+    ? [
+        clinicalInterpretation.overallRisk &&
+          `Overall: ${clinicalInterpretation.overallRisk}`,
+        clinicalInterpretation.importantNote &&
+          `Note: ${clinicalInterpretation.importantNote}`,
+        clinicalInterpretation.clinicalContext &&
+          `Context: ${clinicalInterpretation.clinicalContext}`,
+      ].filter(Boolean)
+    : [
+        `Overall: ${safeRiskLevel} genetic susceptibility based on expression markers.`,
+        'Note: Susceptibility assessment only — not a clinical diagnosis.',
+        'Context: Interpret with clinical evaluation, history, and lifestyle.',
+      ];
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        {/* Top title */}
+      <Page size="A4" style={styles.page} wrap>
         <Text style={styles.labSubtitle}>GENETIC ANALYSIS LABORATORY</Text>
 
-        {/* Header */}
-        <View style={styles.headerContentRow}>
+        <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
             <Image src="/BlackLogo.png" style={styles.logo} />
           </View>
-
           <View style={styles.headerRight}>
             <View
               style={[
@@ -326,6 +351,7 @@ const GenoLabReportPDF = ({
               <Text>{safeRiskLevel.toUpperCase()}</Text>
               <Text style={styles.riskLevelCaption}>RISK LEVEL</Text>
             </View>
+            <View style={styles.riskBoxSpacer} />
             <View style={styles.riskScoreBox}>
               <Text style={styles.riskScoreValue}>
                 {numericRiskScore.toFixed(1)}%
@@ -335,64 +361,58 @@ const GenoLabReportPDF = ({
           </View>
         </View>
 
-        {/* Sample summary */}
-        <View style={styles.sampleSummaryCard}>
-          <View style={styles.sampleSummaryRow}>
-            <View style={styles.sampleSummaryItem}>
-              <Text style={styles.sampleSummaryLabel}>SAMPLE ID</Text>
-              <Text style={styles.sampleSummaryValue}>{finalSampleId}</Text>
-            </View>
-            <View style={styles.sampleSummaryItem}>
-              <Text style={styles.sampleSummaryLabel}>LABORATORY ID</Text>
-              <Text style={styles.sampleSummaryValue}>
-                {finalLaboratoryId}
-              </Text>
-            </View>
-            <View style={styles.sampleSummaryItem}>
-              <Text style={styles.sampleSummaryLabel}>GENERATED AT</Text>
-              <Text style={styles.sampleSummaryValue}>
-                {formatDateTime(generatedAt)}
-              </Text>
-            </View>
+        <View style={styles.metaStrip}>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaLabel}>Sample ID</Text>
+            <Text style={styles.metaValue}>{finalSampleId}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaLabel}>Laboratory ID</Text>
+            <Text style={styles.metaValue}>{finalLaboratoryId}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Text style={styles.metaLabel}>Generated</Text>
+            <Text style={styles.metaValue}>{formatDateTime(generatedAt)}</Text>
           </View>
         </View>
 
-        {/* SECTION A */}
-        <View style={styles.detailSection}>
-          <Text style={styles.detailSectionTitle}>SECTION A</Text>
-          <Text style={styles.detailSectionSubtitle}>RISK SUMMARY</Text>
-          <Text style={styles.detailSectionText}>{finalSummaryText}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Section A</Text>
+          <Text style={styles.sectionSubtitle}>Risk Summary</Text>
+          <Text style={styles.bodyText}>{finalSummaryText}</Text>
         </View>
 
-        {/* SECTION B */}
-        <View style={styles.detailSection}>
-          <Text style={styles.detailSectionTitle}>SECTION B</Text>
-          <Text style={styles.detailSectionSubtitle}>
-            {isHighRisk ? "HIGH-IMPACT ADDICTION-RELATED GENES" : "ADDICTION-RELATED GENES"}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Section B</Text>
+          <Text style={styles.sectionSubtitle}>
+            {isHighRisk
+              ? 'High-Impact Addiction-Related Genes'
+              : 'Addiction-Related Genes'}
           </Text>
-
           <View style={styles.geneTable}>
             <View style={styles.geneTableHeaderRow}>
-              <Text style={styles.geneTableHeaderCell}>GENE</Text>
-              <Text style={styles.geneTableHeaderCell}>EXPRESSION VALUE</Text>
-              <Text style={styles.geneTableHeaderCell}>IMPACT / NOTES</Text>
+              <Text style={styles.geneTableHeaderCell}>Gene</Text>
+              <Text style={styles.geneTableHeaderCell}>Expression</Text>
+              <Text style={styles.geneTableHeaderCell}>Impact / Notes</Text>
             </View>
-
-            {Array.isArray(finalHighImpactGenes) && finalHighImpactGenes.length > 0 ? (
-              finalHighImpactGenes.slice(0, 10).map((g, idx) => {
+            {finalHighImpactGenes.length > 0 ? (
+              finalHighImpactGenes.slice(0, MAX_GENE_ROWS).map((g, idx) => {
                 const gene = g || {};
-                const name = gene.gene || gene.gene_name || "N/A";
+                const name = gene.gene || gene.gene_name || 'N/A';
                 const exp =
-                  typeof gene.expression === "number" && !isNaN(gene.expression) && isFinite(gene.expression)
+                  typeof gene.expression === 'number' &&
+                  !Number.isNaN(gene.expression)
                     ? gene.expression.toFixed(4)
-                    : (gene.expressionValue || gene.expression || "N/A");
+                    : gene.expressionValue || gene.expression || 'N/A';
                 const impact =
-                  gene.impact || (isHighRisk ? "Elevated expression marker" : "Expression marker");
-
+                  gene.impact ||
+                  (isHighRisk
+                    ? 'Elevated marker'
+                    : 'Expression marker');
                 return (
-                  <View key={`high-${idx}`} style={styles.geneTableRow}>
+                  <View key={`gene-${idx}`} style={styles.geneTableRow}>
                     <Text style={styles.geneTableCell}>{name}</Text>
-                    <Text style={styles.geneTableCell}>{exp}</Text>
+                    <Text style={styles.geneTableCell}>{String(exp)}</Text>
                     <Text style={styles.geneTableCell}>{impact}</Text>
                   </View>
                 );
@@ -402,164 +422,52 @@ const GenoLabReportPDF = ({
                 <Text
                   style={[
                     styles.geneTableCell,
-                    { fontStyle: "italic", color: "#666666" },
+                    { fontStyle: 'italic', color: '#666666' },
                   ]}
                 >
-                  {numericRiskScore <= 1.0 
-                    ? "No addiction-related risk detected. No genes to display."
-                    : "No significant genes identified."}
+                  {numericRiskScore <= 1.0
+                    ? 'No addiction-related risk detected.'
+                    : 'No significant genes identified.'}
                 </Text>
               </View>
             )}
           </View>
         </View>
 
-        {/* SECTION C */}
-        <View style={styles.detailSection}>
-          <Text style={styles.detailSectionTitle}>SECTION C</Text>
-          <Text style={styles.detailSectionSubtitle}>
-            CLINICAL INTERPRETATION
-          </Text>
-
-          {clinicalInterpretation ? (
-            <View>
-              {clinicalInterpretation.overallRisk && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>
-                    Overall Risk Assessment:
-                  </Text>{" "}
-                  {clinicalInterpretation.overallRisk}
-                </Text>
-              )}
-              {clinicalInterpretation.importantNote && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>
-                    Important Note:
-                  </Text>{" "}
-                  {clinicalInterpretation.importantNote}
-                </Text>
-              )}
-              {clinicalInterpretation.clinicalContext && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>
-                    Clinical Context:
-                  </Text>{" "}
-                  {clinicalInterpretation.clinicalContext}
-                </Text>
-              )}
-            </View>
-          ) : (
-            <View>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>
-                  Overall Risk Assessment:
-                </Text>{" "}
-                {safeRiskLevel} genetic susceptibility based on analyzed gene
-                expression markers.
-              </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Important Note:</Text> This
-                analysis provides a genetic susceptibility assessment, not a
-                clinical diagnosis.
-              </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Clinical Context:</Text>{" "}
-                Results should be interpreted with clinical evaluation, family
-                history, environment, and lifestyle.
-              </Text>
-            </View>
-          )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Section C</Text>
+          <Text style={styles.sectionSubtitle}>Clinical Interpretation</Text>
+          {clinicalLines.map((line, i) => (
+            <Text key={`clin-${i}`} style={styles.bodyText}>
+              {line}
+            </Text>
+          ))}
         </View>
 
-        {/* SECTION D */}
-        <View style={styles.detailSection}>
-          <Text style={styles.detailSectionTitle}>SECTION D</Text>
-          <Text style={styles.detailSectionSubtitle}>METHODOLOGY</Text>
-
-          {methodology ? (
-            <View>
-              {methodology.algorithm && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>Algorithm:</Text>{" "}
-                  {methodology.algorithm}
-                </Text>
-              )}
-              {methodology.preprocessing && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>Preprocessing:</Text>{" "}
-                  {methodology.preprocessing}
-                </Text>
-              )}
-              {(methodology.featureSelection ||
-                methodology.feature_selection) && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>
-                    Feature Selection:
-                  </Text>{" "}
-                  {methodology.featureSelection ||
-                    methodology.feature_selection}
-                </Text>
-              )}
-              {methodology.validation && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>Validation:</Text>{" "}
-                  {methodology.validation}
-                </Text>
-              )}
-              {(methodology.modelVersion || methodology.model_version) && (
-                <Text style={styles.detailSectionText}>
-                  <Text style={{ fontWeight: "bold" }}>Model Version:</Text>{" "}
-                  {methodology.modelVersion || methodology.model_version}
-                </Text>
-              )}
-            </View>
-          ) : (
-            <View>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Algorithm:</Text> Elastic
-                Net Logistic Regression
+        <View style={styles.bottomRow}>
+          <View style={styles.bottomCol}>
+            <Text style={styles.bottomColTitle}>Section D — Methodology</Text>
+            {methodologyLines.map((line, i) => (
+              <Text key={`meth-${i}`} style={styles.bottomBullet}>
+                • {line}
               </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Preprocessing:</Text>{" "}
-                StandardScaler normalization
-              </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Feature Selection:</Text>{" "}
-                SelectKBest (F-test)
-              </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Validation:</Text> k-fold
-                cross-validation with performance benchmarking
-              </Text>
-              <Text style={styles.detailSectionText}>
-                <Text style={{ fontWeight: "bold" }}>Model Version:</Text> GENO
-                AI v2.0 ({modelName})
-              </Text>
-            </View>
-          )}
+            ))}
+          </View>
+          <View style={[styles.bottomCol, { marginRight: 0 }]}>
+            <Text style={styles.bottomColTitle}>Laboratory Note</Text>
+            <Text style={styles.labNoteText}>
+              This report estimates genetic susceptibility from gene expression
+              markers. Results indicate predisposition, not diagnosis. Decisions
+              require qualified healthcare professionals and full clinical
+              context. GENO AI tools do not replace medical judgment.
+            </Text>
+          </View>
         </View>
 
-        {/* Lab note */}
-        <View style={styles.labNoteBox}>
-          <Text style={styles.labNoteTitle}>LABORATORY NOTE</Text>
-          <Text style={styles.labNoteText}>
-            This analysis estimates genetic susceptibility to addiction based on
-            gene expression markers. Results indicate predisposition, not a
-            diagnosis. Clinical decisions must be made by qualified healthcare
-            professionals. This report should be reviewed in conjunction with
-            clinical evaluation, family history, and other relevant medical
-            information. The GENO AI Analysis System provides genetic risk
-            assessment tools and does not replace clinical judgment or medical
-            consultation.
-          </Text>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footerContainer}>
+        <View style={styles.footer}>
           <Text style={styles.footerText}>
-            This report was generated by the GENO AI Analysis System. It
-            provides genetic susceptibility information only and does not
-            constitute a medical diagnosis.
+            Generated by GENO AI Analysis System — genetic susceptibility
+            information only; not a medical diagnosis.
           </Text>
         </View>
       </Page>

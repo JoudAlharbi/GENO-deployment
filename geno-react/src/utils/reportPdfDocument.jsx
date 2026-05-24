@@ -75,8 +75,8 @@ export function extractReportPdfFields(analysisResult) {
   const summaryText =
     report.summary_text ||
     (isHighRisk
-      ? `The genetic analysis indicates an ELEVATED risk profile with gene expression patterns consistent with increased addiction susceptibility. The calculated risk score of ${Number(scorePercent).toFixed(1)}% exceeds the 75% threshold for high-risk classification.`
-      : `The genetic analysis indicates a LOW risk profile. Gene expression patterns are within normal ranges with minimal addiction-related markers detected. The calculated risk score of ${Number(scorePercent).toFixed(1)}% is below the 75% threshold.`);
+      ? `Elevated addiction risk profile. Risk score ${Number(scorePercent).toFixed(1)}% exceeds the 75% high-risk threshold.`
+      : `Low addiction risk profile. Risk score ${Number(scorePercent).toFixed(1)}% is below the 75% threshold.`);
 
   return {
     normalized,
