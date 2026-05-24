@@ -9,8 +9,102 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 
-/** Max gene rows so the table fits on one page with other sections */
-const MAX_GENE_ROWS = 5;
+/** Max gene rows — leave room for Section C + footer blocks on one A4 page */
+const MAX_GENE_ROWS = 4;
+
+const defaultClinicalLines = (riskLevel) => {
+  const level = (riskLevel || 'LOW').toUpperCase();
+  return [
+    `Overall Risk Assessment: ${level} genetic susceptibility based on analyzed gene expression markers.`,
+    'Important Note: This analysis provides a genetic susceptibility assessment, not a clinical diagnosis.',
+    'Clinical Context: Results should be interpreted with clinical evaluation, family history, environment, and lifestyle.',
+  ];
+};
+
+/** Backend/UI pass string[]; legacy PDF props may use { overallRisk, importantNote, clinicalContext } */
+const resolveClinicalLines = (clinicalInterpretation, riskLevel) => {
+  const defaults = defaultClinicalLines(riskLevel);
+
+  if (clinicalInterpretation == null) {
+    return defaults;
+  }
+
+  if (Array.isArray(clinicalInterpretation)) {
+    const lines = clinicalInterpretation
+      .map((item) => {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+          return String(item.text || item.content || item.message || '').trim();
+        }
+        return String(item ?? '').trim();
+      })
+      .filter(Boolean);
+    return lines.length > 0 ? lines : defaults;
+  }
+
+  if (typeof clinicalInterpretation === 'string') {
+    const trimmed = clinicalInterpretation.trim();
+    return trimmed ? [trimmed] : defaults;
+  }
+
+  if (typeof clinicalInterpretation === 'object') {
+    const lines = [
+      clinicalInterpretation.overallRisk &&
+        `Overall Risk Assessment: ${clinicalInterpretation.overallRisk}`,
+      clinicalInterpretation.importantNote &&
+        `Important Note: ${clinicalInterpretation.importantNote}`,
+      clinicalInterpretation.clinicalContext &&
+        `Clinical Context: ${clinicalInterpretation.clinicalContext}`,
+    ].filter(Boolean);
+    return lines.length > 0 ? lines : defaults;
+  }
+
+  return defaults;
+};
+
+const resolveMethodologyLines = (methodology, modelName) => {
+  const defaults = [
+    'Algorithm: Elastic Net Logistic Regression',
+    'Preprocessing: StandardScaler normalization',
+    'Feature selection: SelectKBest (F-test)',
+    'Validation: k-fold cross-validation',
+    `Model: GENO AI v2.0 (${modelName})`,
+  ];
+
+  if (methodology == null) {
+    return defaults;
+  }
+
+  if (Array.isArray(methodology)) {
+    const lines = methodology
+      .map((item) => {
+        if (typeof item === 'string') return item.trim();
+        if (item && typeof item === 'object') {
+          return String(item.text || item.content || item.label || '').trim();
+        }
+        return String(item ?? '').trim();
+      })
+      .filter(Boolean);
+    return lines.length > 0 ? lines : defaults;
+  }
+
+  if (typeof methodology === 'object') {
+    const lines = [
+      methodology.algorithm && `Algorithm: ${methodology.algorithm}`,
+      methodology.preprocessing && `Preprocessing: ${methodology.preprocessing}`,
+      (methodology.featureSelection || methodology.feature_selection) &&
+        `Feature selection: ${methodology.featureSelection || methodology.feature_selection}`,
+      methodology.validation && `Validation: ${methodology.validation}`,
+      (methodology.modelVersion || methodology.model_version) &&
+        `Model: ${methodology.modelVersion || methodology.model_version}`,
+      methodology.training_samples &&
+        `Training: ${methodology.training_samples}`,
+    ].filter(Boolean);
+    return lines.length > 0 ? lines : defaults;
+  }
+
+  return defaults;
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -122,7 +216,13 @@ const styles = StyleSheet.create({
     color: '#111111',
   },
   section: {
-    marginBottom: 5,
+    marginBottom: 4,
+  },
+  clinicalBullet: {
+    fontSize: 7,
+    color: '#333333',
+    lineHeight: 1.24,
+    marginBottom: 1.5,
   },
   sectionTitle: {
     fontSize: 7,
@@ -299,38 +399,8 @@ const GenoLabReportPDF = ({
   const finalSummaryText =
     rawSummary.length > 320 ? `${rawSummary.slice(0, 317)}...` : rawSummary;
 
-  const methodologyLines = methodology
-    ? [
-        methodology.algorithm && `Algorithm: ${methodology.algorithm}`,
-        methodology.preprocessing && `Preprocessing: ${methodology.preprocessing}`,
-        (methodology.featureSelection || methodology.feature_selection) &&
-          `Feature selection: ${methodology.featureSelection || methodology.feature_selection}`,
-        methodology.validation && `Validation: ${methodology.validation}`,
-        (methodology.modelVersion || methodology.model_version) &&
-          `Model: ${methodology.modelVersion || methodology.model_version}`,
-      ].filter(Boolean)
-    : [
-        'Algorithm: Elastic Net Logistic Regression',
-        'Preprocessing: StandardScaler normalization',
-        'Feature selection: SelectKBest (F-test)',
-        'Validation: k-fold cross-validation',
-        `Model: GENO AI v2.0 (${modelName})`,
-      ];
-
-  const clinicalLines = clinicalInterpretation
-    ? [
-        clinicalInterpretation.overallRisk &&
-          `Overall: ${clinicalInterpretation.overallRisk}`,
-        clinicalInterpretation.importantNote &&
-          `Note: ${clinicalInterpretation.importantNote}`,
-        clinicalInterpretation.clinicalContext &&
-          `Context: ${clinicalInterpretation.clinicalContext}`,
-      ].filter(Boolean)
-    : [
-        `Overall: ${safeRiskLevel} genetic susceptibility based on expression markers.`,
-        'Note: Susceptibility assessment only — not a clinical diagnosis.',
-        'Context: Interpret with clinical evaluation, history, and lifestyle.',
-      ];
+  const methodologyLines = resolveMethodologyLines(methodology, modelName);
+  const clinicalLines = resolveClinicalLines(clinicalInterpretation, safeRiskLevel);
 
   return (
     <Document>
@@ -438,8 +508,8 @@ const GenoLabReportPDF = ({
           <Text style={styles.sectionTitle}>Section C</Text>
           <Text style={styles.sectionSubtitle}>Clinical Interpretation</Text>
           {clinicalLines.map((line, i) => (
-            <Text key={`clin-${i}`} style={styles.bodyText}>
-              {line}
+            <Text key={`clin-${i}`} style={styles.clinicalBullet} wrap>
+              • {line}
             </Text>
           ))}
         </View>
