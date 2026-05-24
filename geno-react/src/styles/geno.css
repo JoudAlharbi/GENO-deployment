@@ -7,6 +7,7 @@ body {
   background: linear-gradient(to bottom, #1a1a1a 0%, #000000 100%);
   color: #fff;
   font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
 }
 
 /* Shared glowing titles */
@@ -366,7 +367,7 @@ h1, h2, h3 {
   background: rgba(255, 255, 255, 0.06);
   padding: 60px;
   border-radius: 24px;
-  width: 85%;
+  width: 100%;
   max-width: 1200px;
   display: flex;
   flex-direction: column;
@@ -820,12 +821,20 @@ h1, h2, h3 {
 .file-input-wrapper {
   margin-top: 10px;
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
   justify-content: center;
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .file-path {
-  width: 500px;
+  width: 100%;
+  max-width: 500px;
+  min-width: 0;
+  flex: 1 1 200px;
   padding: 16px 22px;
   border-radius: 16px;
   border: 1px solid #444;
@@ -1035,4 +1044,15 @@ h1, h2, h3 {
   .db-charts__grid { grid-template-columns: 1fr; }
   .db-toolbar__count { margin-left: 0; width: 100%; }
   .db-toolbar__search { max-width: none; width: 100%; }
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .dashboard-main-card,
+  .dashboard-side-card {
+    width: 100%;
+  }
 }

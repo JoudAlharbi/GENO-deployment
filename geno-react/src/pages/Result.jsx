@@ -64,10 +64,7 @@ export default function Result() {
 
   // Styles
   const pageStyle = {
-    padding: "30px",
-    maxWidth: "900px",
-    margin: "0 auto",
-    minHeight: "100vh"
+    minHeight: "100vh",
   };
 
   const mainCardStyle = {
@@ -96,7 +93,7 @@ export default function Result() {
   // Error state
   if (error) {
     return (
-      <main style={pageStyle}>
+      <main className="result-page" style={pageStyle}>
         <div style={{ textAlign: "center", marginBottom: "30px" }}>
           <h1 style={{ color: "#ffffff", fontSize: "2rem" }}>RESULT</h1>
         </div>
@@ -126,7 +123,7 @@ export default function Result() {
   // Loading state
   if (!analysisResult) {
     return (
-      <main style={pageStyle}>
+      <main className="result-page" style={pageStyle}>
         <div style={{ textAlign: "center", padding: "60px" }}>
           <div style={{
             width: "50px", height: "50px",
@@ -164,9 +161,9 @@ export default function Result() {
   );
 
   return (
-    <main style={pageStyle}>
+    <main className="result-page" style={pageStyle}>
       {/* Success Banner */}
-      <div style={{ textAlign: "center", marginBottom: "30px" }}>
+      <div className="result-page__banner">
         <div style={{
           display: "inline-flex",
           alignItems: "center",
@@ -211,17 +208,14 @@ export default function Result() {
       </div>
 
       {/* Main Report Card - Captured for PDF */}
-      <div id="report-container" style={mainCardStyle}>
+      <div id="report-container" className="result-page__card" style={mainCardStyle}>
         
         {/* Report Header */}
-        <div style={{
+        <div
+          className="result-page__header"
+          style={{
           ...sectionStyle,
           background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: "20px"
         }}>
           <div style={{ flex: 1, minWidth: "260px" }}>
             <h2 style={{
@@ -251,7 +245,7 @@ export default function Result() {
           </div>
           
           {/* Risk Badges */}
-          <div style={{ display: "flex", gap: "10px", flexShrink: 0 }}>
+          <div className="result-page__badges">
             <div style={{
               background: isHighRisk ? "rgba(255,100,100,0.12)" : "rgba(100,255,150,0.12)",
               border: `1px solid ${isHighRisk ? "rgba(255,100,100,0.3)" : "rgba(100,255,150,0.3)"}`,
@@ -420,13 +414,7 @@ export default function Result() {
       </div>
 
       {/* Action Buttons */}
-      <div style={{
-        marginTop: "30px",
-        display: "flex",
-        justifyContent: "center",
-        gap: "15px",
-        flexWrap: "wrap"
-      }}>
+      <div className="result-actions">
         <ReportPdfDownloadButton analysisResult={analysisResult} variant="result" />
         
         <button

@@ -573,6 +573,7 @@ export default function ViewReport() {
             <h2 className="report-section-title">
               {isHighRisk ? "HIGH-IMPACT ADDICTION-RELATED GENES" : "ADDICTION-RELATED GENES"}
             </h2>
+            <div className="report-table-wrap">
             <table className="report-table">
               <thead>
                 <tr>
@@ -616,6 +617,7 @@ export default function ViewReport() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* C. Clinical Interpretation */}
