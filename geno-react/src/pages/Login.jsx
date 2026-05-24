@@ -76,7 +76,7 @@ export default function Login() {
             <input
               type="text"
               id="companyId"
-              placeholder="Enter your company ID"
+              placeholder="demo"
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
               disabled={isLoading}
@@ -89,7 +89,7 @@ export default function Login() {
             <input
               type="password"
               id="password"
-              placeholder="Enter your password"
+              placeholder="demo1234"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
@@ -149,7 +149,7 @@ export default function Login() {
             color: "#888", 
             marginTop: "10px" 
           }}>
-            Demo: Company ID: DEMO01 | Password: demo123
+            Demo: Company ID: demo | Password: demo1234
           </p>
         </div>
       </div>

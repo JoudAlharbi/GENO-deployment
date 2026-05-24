@@ -14,8 +14,8 @@ sys.path.insert(0, str(backend_dir))
 from app_config import Config
 from utils.auth_utils import hash_password
 
-DEMO_EMPLOYEE_ID = os.getenv('DEMO_EMPLOYEE_ID', 'DEMO01')
-DEMO_PASSWORD = os.getenv('DEMO_PASSWORD', 'demo123')
+DEMO_EMPLOYEE_ID = os.getenv('DEMO_EMPLOYEE_ID', 'demo')
+DEMO_PASSWORD = os.getenv('DEMO_PASSWORD', 'demo1234')
 DEMO_EMAIL = os.getenv('DEMO_EMAIL', 'demo@geno-lab.example')
 DEMO_FULLNAME = os.getenv('DEMO_FULLNAME', 'Demo Laboratory User')
 

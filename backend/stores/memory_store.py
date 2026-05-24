@@ -9,7 +9,7 @@ from datetime import datetime
 from threading import Lock
 from typing import Any, Optional
 
-DEMO_USER_ID = 'DEMO01'
+DEMO_USER_ID = 'demo'
 DEMO_EMAIL = 'demo@geno-lab.example'
 DEMO_FULLNAME = 'Portfolio Demo User'
 

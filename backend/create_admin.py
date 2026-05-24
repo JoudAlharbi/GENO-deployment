@@ -1,6 +1,6 @@
 """
 Optional admin seed — set ADMIN_EMPLOYEE_ID and ADMIN_PASSWORD in env before running.
-Not required for public portfolio demo (use create_test_users.py / DEMO01).
+Not required for public portfolio demo (use create_test_users.py / demo).
 """
 import os
 import sys

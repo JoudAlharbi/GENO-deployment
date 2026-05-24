@@ -12,7 +12,7 @@ _DATA_DIR = Path(os.getenv('DATA_DIR', str(_BACKEND_ROOT)))
 class Config:
     # Portfolio demo: no PostgreSQL, no JWT (set DEMO_MODE=false to use full stack)
     DEMO_MODE = os.getenv('DEMO_MODE', 'true').lower() in ('true', '1', 'yes')
-    DEMO_USER_ID = os.getenv('DEMO_USER_ID', 'DEMO01')
+    DEMO_USER_ID = os.getenv('DEMO_USER_ID', 'demo')
 
     # Database
     DATABASE_URL = os.getenv("DATABASE_URL")

@@ -14,7 +14,7 @@ Recommended **free-tier** stack:
 
 - GitHub repo with this project pushed
 - Local PostgreSQL schema already applied (`backend/DB/db_setup.py` or your existing `geno` DB)
-- Demo login user exists (`DEMO01` / `demo123` — run `python create_test_users.py` in `backend/`)
+- Demo login user exists (`demo` / `demo1234` — run `python create_test_users.py` in `backend/`)
 
 ---
 
@@ -73,7 +73,7 @@ Expect `status: ok` when DB is reachable.
 ```bash
 curl -s -X POST https://YOUR-API.onrender.com/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"employee_id":"DEMO01","password":"demo123"}'
+  -d '{"employee_id":"demo","password":"demo1234"}'
 ```
 
 If you still see `"token": "demo-token"`, redeploy the backend from the latest `main` branch (auth fix not deployed yet).

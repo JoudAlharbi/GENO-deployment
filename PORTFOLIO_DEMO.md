@@ -41,4 +41,4 @@ Open `http://localhost:5173/load` — upload a CSV and run analysis without logg
 
 ## Full production stack
 
-Set `DEMO_MODE=false` (backend) and `VITE_DEMO_MODE=false` (frontend), configure PostgreSQL and `SECRET_KEY`. See `DEPLOYMENT.md`.
+Set `DEMO_MODE=false` (backend) and `VITE_DEMO_MODE=false` (frontend), configure PostgreSQL and `SECRET_KEY`. Seed demo login with `python create_test_users.py` (**demo** / **demo1234**). See `DEPLOYMENT.md`.

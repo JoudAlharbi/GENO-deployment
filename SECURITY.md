@@ -8,14 +8,14 @@
 - [ ] `SECRET_KEY` is set on the host (Render/Vercel env), not in source code
 - [ ] `CORS_ORIGINS` lists only your deployed frontend URL(s)
 - [ ] `FLASK_DEBUG=false` in production
-- [ ] Run `python create_test_users.py` in `backend/` to seed demo login: **DEMO01** / **demo123**
+- [ ] Run `python create_test_users.py` in `backend/` to seed demo login: **demo** / **demo1234**
 
 ## Demo credentials (public portfolio)
 
 | Field | Value |
 |--------|--------|
-| Company ID | `DEMO01` |
-| Password | `demo123` |
+| Company ID | `demo` |
+| Password | `demo1234` |
 
 Override via env: `DEMO_EMPLOYEE_ID`, `DEMO_PASSWORD`, `DEMO_EMAIL`, `DEMO_FULLNAME`.
 
