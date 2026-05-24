@@ -222,9 +222,10 @@ h1, h2, h3 {
   text-align: center;
 }
 
-/* Stats layout */
+/* Stats layout — desktop/laptop default (overridden below 768px in responsive.css) */
 .stats-container-new {
   display: flex;
+  flex-direction: row;
   justify-content: center;
   align-items: flex-start;
   gap: 60px;

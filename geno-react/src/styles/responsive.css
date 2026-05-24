@@ -140,11 +140,6 @@ img {
   margin-bottom: clamp(24px, 6vw, 50px);
 }
 
-.about-title {
-  font-size: clamp(2rem, 8vw, 75px);
-  letter-spacing: clamp(2px, 1.5vw, 6px);
-}
-
 .load-title,
 .result-title {
   font-size: clamp(2rem, 9vw, 70px);
@@ -160,7 +155,6 @@ img {
 }
 
 .main-description,
-.about-description,
 .load-description,
 .result-description,
 .dashboard-subtitle,
@@ -176,25 +170,6 @@ img {
   padding: clamp(24px, 5vw, 50px) clamp(16px, 5vw, 60px) clamp(32px, 6vw, 40px);
   width: 100%;
   max-width: 900px;
-}
-
-/* ── About stats ──────────────────────────────────────────── */
-.stats-container-new {
-  flex-direction: column;
-  align-items: stretch;
-  gap: clamp(20px, 4vw, 40px);
-}
-
-.stats-left,
-.stats-right {
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: 100%;
-  margin-top: 0;
-}
-
-.about-content {
-  padding: clamp(80px, 18vw, 120px) clamp(16px, 5vw, 60px) clamp(48px, 8vw, 80px);
 }
 
 /* ── Dashboard (legacy + modern) ─────────────────────────── */
@@ -388,6 +363,26 @@ img {
   width: 100%;
 }
 
+/* ── About page: tablet (≤992px) ─────────────────────────── */
+@media (max-width: 992px) {
+  .about-content {
+    padding: 100px 40px 60px;
+  }
+
+  .stats-container-new {
+    gap: 36px;
+  }
+
+  .stats-left {
+    flex: 0 1 320px;
+  }
+
+  .stats-right {
+    flex: 0 1 420px;
+    margin-top: 72px;
+  }
+}
+
 /* ── Tablet (≤992px) ─────────────────────────────────────── */
 @media (max-width: 992px) {
   .nav-links a {
@@ -412,6 +407,55 @@ img {
 
   .db-toolbar__count {
     margin-left: 0;
+  }
+}
+
+/* ── About page: mobile (≤768px) ──────────────────────────── */
+@media (max-width: 768px) {
+  .about-content {
+    padding: 80px 20px 48px;
+  }
+
+  .about-title {
+    font-size: clamp(2rem, 8vw, 52px);
+    letter-spacing: clamp(2px, 1.2vw, 4px);
+    margin-bottom: 24px;
+  }
+
+  .about-description {
+    font-size: clamp(0.95rem, 2.8vw, 18px);
+    line-height: 1.55;
+    margin-bottom: 40px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .stats-container-new {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+  }
+
+  .stats-left,
+  .stats-right {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0;
+  }
+
+  .stat-card,
+  .stat-card-large {
+    padding: 32px 24px;
+  }
+
+  .stat-number {
+    font-size: clamp(2.5rem, 10vw, 48px);
+  }
+
+  .ai-description {
+    font-size: 1rem;
+    line-height: 1.65;
   }
 }
 
