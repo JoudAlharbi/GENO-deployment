@@ -34,6 +34,11 @@ app.config.from_object('config.Config')
 os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(Config.REPORTS_FOLDER, exist_ok=True)
 
+if Config.DEMO_MODE:
+    from stores.memory_store import init_store
+    init_store()
+    print('[GENO] Portfolio demo mode — in-memory storage, auth disabled')
+
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(files_bp, url_prefix='/api/files')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')
@@ -54,7 +59,8 @@ def health_check():
     return jsonify({
         'status': 'ok' if ok else 'degraded',
         'backend': 'running',
-        'database': Config.DB_NAME,
+        'demo_mode': Config.DEMO_MODE,
+        'database': 'in-memory' if Config.DEMO_MODE else Config.DB_NAME,
         'database_status': code,
         'database_details': details,
     }), 200 if ok else 503

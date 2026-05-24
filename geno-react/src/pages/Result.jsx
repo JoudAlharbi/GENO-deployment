@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import GenoLabReportPDF from '../pdf/GenoLabReportPDF.jsx';
 import { formatPercentEn } from "../utils/formatNumber";
+import { DEMO_MODE } from "../config/demo";
 
 /**
  * Result Page - "RESULT IS READY!" Summary View
@@ -14,12 +15,14 @@ export default function Result() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isLoggedIn =
-      localStorage.getItem("genoLoggedIn") === "true" ||
-      sessionStorage.getItem("genoLoggedIn") === "true";
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
+    if (!DEMO_MODE) {
+      const isLoggedIn =
+        localStorage.getItem("genoLoggedIn") === "true" ||
+        sessionStorage.getItem("genoLoggedIn") === "true";
+      if (!isLoggedIn) {
+        navigate("/login");
+        return;
+      }
     }
 
     const storedResult = sessionStorage.getItem("analysisResult");

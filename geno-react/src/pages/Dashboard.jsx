@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import CountUp from "../components/CountUp";
 import DashboardAnalytics from "../components/DashboardAnalytics";
 import apiService, { fetchDashboard } from "../services/api";
+import { DEMO_MODE } from "../config/demo";
 import { formatPercentEn } from "../utils/formatNumber";
 
 /**
@@ -36,7 +37,7 @@ export default function Dashboard() {
 
   // Auth check
   useEffect(() => {
-    if (!apiService.isAuthenticated()) {
+    if (!DEMO_MODE && !apiService.isAuthenticated()) {
       navigate("/login");
     }
   }, [navigate]);
@@ -58,7 +59,7 @@ export default function Dashboard() {
         if (!isMounted) return;
         const msg = err.message || "Failed to load dashboard data";
         setError(msg);
-        if (msg.includes("log in") || msg.includes("Authentication")) {
+        if (!DEMO_MODE && (msg.includes("log in") || msg.includes("Authentication"))) {
           navigate("/login");
         }
         setSamples([]);

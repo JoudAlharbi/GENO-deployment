@@ -39,6 +39,13 @@ def check_database_connection():
     Verify PostgreSQL is reachable.
     Returns (ok: bool, message: str, details: dict|None)
     """
+    if Config.DEMO_MODE:
+        return True, 'demo_mode', {
+            'database': 'in-memory',
+            'postgres_version': 'N/A (portfolio demo)',
+            'host': 'memory',
+            'port': '0',
+        }
     try:
         conn = get_db_connection()
         cur = conn.cursor()

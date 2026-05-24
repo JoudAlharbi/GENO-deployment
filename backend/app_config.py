@@ -10,6 +10,9 @@ _DATA_DIR = Path(os.getenv('DATA_DIR', str(_BACKEND_ROOT)))
 
 
 class Config:
+    # Portfolio demo: no PostgreSQL, no JWT (set DEMO_MODE=false to use full stack)
+    DEMO_MODE = os.getenv('DEMO_MODE', 'true').lower() in ('true', '1', 'yes')
+    DEMO_USER_ID = os.getenv('DEMO_USER_ID', 'DEMO01')
 
     # Database
     DATABASE_URL = os.getenv("DATABASE_URL")
@@ -39,7 +42,7 @@ class Config:
 
     # CORS — comma-separated origins in production (e.g. https://your-app.vercel.app)
     # Local dev may use *; set explicit origins when deployed.
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*' if not IS_PRODUCTION else '')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', '*')
     
     # AI Service Configuration (placeholder for future integration)
     AI_SERVICE_ENABLED = os.getenv('AI_SERVICE_ENABLED', 'false').lower() == 'true'

@@ -167,15 +167,7 @@ def get_reports():
     
     try:
         # Get all reports that are linked to files uploaded by this user
-        query = """
-            SELECT DISTINCT r.*
-            FROM Reports r
-            JOIN contains c ON r.sequence_id = c.sequence_id
-            JOIN UPLOAD u ON c.FileID = u.FileID
-            WHERE u.UserID = %s
-            ORDER BY r.sequence_id DESC
-        """
-        reports = DatabaseOperations.execute_query(query, (user['user_id'],), fetch=True)
+        reports = DatabaseOperations.get_reports_for_user(user['user_id'])
         
         # Format reports
         report_list = []

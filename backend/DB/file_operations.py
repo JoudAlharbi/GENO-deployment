@@ -1,39 +1,52 @@
+from app_config import Config
 from DB.db_operations import DatabaseOperations
 
+if Config.DEMO_MODE:
+    from stores import memory_store as _store
+
+
 class FileOperations:
-    
+
     @staticmethod
-    def create_dna_file(file_id, user_id, original_name, stored_name, 
+    def create_dna_file(file_id, user_id, original_name, stored_name,
                         filepath, file_size, extension):
-        """Create DNA file record in database"""
-        
-        # Insert into DNAfile table with metadata
+        if Config.DEMO_MODE:
+            _store.create_dna_file(
+                file_id, user_id, original_name, stored_name,
+                filepath, file_size, extension,
+            )
+            return {
+                'file_id': file_id,
+                'original_name': original_name,
+                'stored_name': stored_name,
+                'size': file_size,
+                'extension': extension,
+            }
+
         query1 = """
             INSERT INTO DNAfile (FileID, original_name, stored_name, filepath, size, extension, upload_date)
             VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
         """
-        DatabaseOperations.execute_query(query1, (file_id, original_name, stored_name, filepath, file_size, extension))
-        
-        # Link to user in UPLOAD table
+        DatabaseOperations.execute_query(
+            query1, (file_id, original_name, stored_name, filepath, file_size, extension)
+        )
         query2 = """
             INSERT INTO UPLOAD (UserID, FileID, upload_date)
             VALUES (%s, %s, CURRENT_TIMESTAMP)
         """
         DatabaseOperations.execute_query(query2, (user_id, file_id))
-        
-        # Store file metadata (you might want a separate metadata table)
-        # For now, we'll return the info
         return {
             'file_id': file_id,
             'original_name': original_name,
             'stored_name': stored_name,
             'size': file_size,
-            'extension': extension
+            'extension': extension,
         }
-    
+
     @staticmethod
     def get_user_files(user_id):
-        """Get all files uploaded by a specific user"""
+        if Config.DEMO_MODE:
+            return _store.get_user_files(user_id)
         query = """
             SELECT d.FileID, u.upload_date
             FROM DNAfile d
@@ -42,10 +55,11 @@ class FileOperations:
             ORDER BY u.upload_date DESC
         """
         return DatabaseOperations.execute_query(query, (user_id,), fetch=True)
-    
+
     @staticmethod
     def get_file_by_id(file_id):
-        """Get file information by file ID"""
+        if Config.DEMO_MODE:
+            return _store.get_file_by_id(file_id)
         query = """
             SELECT d.FileID, u.UserID, u.upload_date
             FROM DNAfile d
@@ -54,26 +68,27 @@ class FileOperations:
         """
         result = DatabaseOperations.execute_query(query, (file_id,), fetch=True)
         return result[0] if result else None
-    
+
     @staticmethod
     def delete_file_record(file_id):
-        """Delete file record from database"""
-        # Due to CASCADE, deleting from DNAfile will delete from UPLOAD too
+        if Config.DEMO_MODE:
+            return _store.delete_file_record(file_id)
         query = "DELETE FROM DNAfile WHERE FileID = %s"
         DatabaseOperations.execute_query(query, (file_id,))
-    
+
     @staticmethod
     def link_file_to_report(file_id, sequence_id):
-        """Link a DNA file to a report"""
+        if Config.DEMO_MODE:
+            return _store.link_file_to_report(file_id, sequence_id)
         query = """
-            INSERT INTO contains (sequence_id, FileID)
-            VALUES (%s, %s)
+            INSERT INTO contains (sequence_id, FileID) VALUES (%s, %s)
         """
         DatabaseOperations.execute_query(query, (sequence_id, file_id))
-    
+
     @staticmethod
     def get_file_report(file_id):
-        """Get report associated with a file"""
+        if Config.DEMO_MODE:
+            return _store.get_file_report(file_id)
         query = """
             SELECT r.*
             FROM Reports r
@@ -82,10 +97,11 @@ class FileOperations:
         """
         result = DatabaseOperations.execute_query(query, (file_id,), fetch=True)
         return result[0] if result else None
-    
+
     @staticmethod
     def get_report_files(sequence_id):
-        """Get all files associated with a report"""
+        if Config.DEMO_MODE:
+            return _store.get_report_files(sequence_id)
         query = """
             SELECT d.FileID
             FROM DNAfile d

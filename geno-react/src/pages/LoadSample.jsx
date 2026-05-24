@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../services/api";
+import { DEMO_MODE } from "../config/demo";
 
 export default function LoadSample() {
   const fileInputRef = useRef(null);
@@ -12,7 +13,7 @@ export default function LoadSample() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!apiService.isAuthenticated()) {
+    if (!DEMO_MODE && !apiService.isAuthenticated()) {
       navigate("/login");
     }
   }, [navigate]);
@@ -70,10 +71,6 @@ export default function LoadSample() {
           return prev + 10;
         });
       }, 200);
-
-      if (!apiService.isAuthenticated()) {
-        throw new Error("Authentication required. Please log in again.");
-      }
 
       const result = await apiService.analyzeCSV(selectedFile);
       

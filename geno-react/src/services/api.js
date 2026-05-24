@@ -4,9 +4,10 @@
  */
 
 import { API_BASE_URL } from '../config/apiBase';
+import { DEMO_MODE } from '../config/demo';
 
 if (import.meta.env.DEV) {
-  console.info('[GENO] API base:', API_BASE_URL);
+  console.info('[GENO] API base:', API_BASE_URL, '| demo mode:', DEMO_MODE);
 }
 
 const INVALID_TOKENS = new Set(['demo-token', 'null', 'undefined']);
@@ -44,13 +45,8 @@ export const getAuthToken = () => {
   return null;
 };
 
-/** Build headers with Authorization always set last (cannot be overwritten). */
+/** Build request headers (Authorization only when not in portfolio demo mode). */
 export const buildAuthHeaders = (extraHeaders = {}, { json = false, formData = false } = {}) => {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error('Authentication required. Please log in again.');
-  }
-
   const headers = new Headers(extraHeaders);
   if (json && !formData) {
     headers.set('Content-Type', 'application/json');
@@ -58,7 +54,13 @@ export const buildAuthHeaders = (extraHeaders = {}, { json = false, formData = f
   if (formData) {
     headers.delete('Content-Type');
   }
-  headers.set('Authorization', `Bearer ${token}`);
+  if (!DEMO_MODE) {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('Authentication required. Please log in again.');
+    }
+    headers.set('Authorization', `Bearer ${token}`);
+  }
   return headers;
 };
 
@@ -70,14 +72,14 @@ export const clearAuthStorage = () => {
 };
 
 export const storeAuthSession = (token, user, remember = true) => {
-  if (!isValidJwt(token)) {
+  if (!DEMO_MODE && !isValidJwt(token)) {
     throw new Error(
       'Server returned an invalid session token. Please redeploy the backend or contact support.'
     );
   }
   clearAuthStorage();
   const storage = remember ? localStorage : sessionStorage;
-  storage.setItem('genoToken', token);
+  if (token) storage.setItem('genoToken', token);
   storage.setItem('genoUser', JSON.stringify(user));
   storage.setItem('genoLoggedIn', 'true');
 };
@@ -114,7 +116,7 @@ const parseErrorMessage = async (response) => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorMessage = await parseErrorMessage(response);
-    if (response.status === 401) {
+    if (!DEMO_MODE && response.status === 401) {
       clearAuthStorage();
       throw new Error('Session expired or invalid. Please log in again.');
     }
@@ -124,7 +126,7 @@ const handleResponse = async (response) => {
 };
 
 /**
- * Authenticated fetch — always attaches Bearer JWT.
+ * API fetch — attaches Bearer JWT when not in demo mode.
  * FormData: never set Content-Type (browser adds multipart boundary).
  */
 export const authFetch = async (url, options = {}) => {
@@ -150,7 +152,7 @@ export const authFetch = async (url, options = {}) => {
     credentials: 'omit',
   });
 
-  if (response.status === 401) {
+  if (!DEMO_MODE && response.status === 401) {
     clearAuthStorage();
     const msg = await parseErrorMessage(response);
     throw new Error(msg || 'Authentication required. Please log in again.');
@@ -207,7 +209,7 @@ const apiService = {
       
       const data = await handleResponse(response);
 
-      if (!data.token || !isValidJwt(data.token)) {
+      if (!DEMO_MODE && (!data.token || !isValidJwt(data.token))) {
         throw new Error(
           'Login succeeded but the server returned an invalid token. ' +
           'Redeploy the backend with the latest auth fix, then log in again.'
@@ -231,7 +233,7 @@ const apiService = {
   /**
    * Check if user is authenticated (valid JWT present)
    */
-  isAuthenticated: () => !!getAuthToken(),
+  isAuthenticated: () => DEMO_MODE || !!getAuthToken(),
 
   /**
    * Upload and analyze CSV file (Flask two-step process)
@@ -243,11 +245,7 @@ const apiService = {
    */
   analyzeCSV: async (file, onProgress = null) => {
     try {
-      if (!getAuthToken()) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-
-      // Step 1: Upload file (multipart — Authorization only, no Content-Type)
+      // Step 1: Upload file (multipart — no auth header in demo mode)
       if (onProgress) onProgress(10);
 
       const formData = new FormData();

@@ -1,45 +1,44 @@
-"""Shared request authentication helpers for Flask routes."""
+"""Request authentication — bypassed in portfolio demo mode."""
 
 from functools import wraps
 
-from flask import jsonify, request
+from flask import jsonify
 
-from utils.auth_utils import verify_token
+from app_config import Config
 
 
 def extract_bearer_token():
-    """
-    Read Authorization: Bearer <token> from the request.
-    Handles case-insensitive header name and scheme.
-    """
-    auth_header = request.headers.get('Authorization') or request.headers.get('authorization')
-    if not auth_header:
-        return None
-
-    parts = auth_header.strip().split(None, 1)
-    if len(parts) != 2 or parts[0].lower() != 'bearer':
-        return None
-
-    token = parts[1].strip()
-    return token or None
+    return None
 
 
 def get_current_user():
-    """Extract and verify user from Bearer JWT. Returns payload dict or None."""
-    token = extract_bearer_token()
+    """In demo mode always return the public demo lab user (no JWT)."""
+    if Config.DEMO_MODE:
+        from stores.memory_store import DEMO_EMAIL, DEMO_FULLNAME, DEMO_USER_ID
+        return {
+            'user_id': Config.DEMO_USER_ID or DEMO_USER_ID,
+            'email': DEMO_EMAIL,
+        }
+    from flask import request
+    from utils.auth_utils import verify_token
+
+    auth_header = request.headers.get('Authorization') or request.headers.get('authorization')
+    if not auth_header:
+        return None
+    parts = auth_header.strip().split(None, 1)
+    if len(parts) != 2 or parts[0].lower() != 'bearer':
+        return None
+    token = parts[1].strip()
     if not token:
         return None
     return verify_token(token)
 
 
 def require_auth(f):
-    """Decorator: inject verified JWT payload as first argument `user`."""
-
     @wraps(f)
     def decorated(*args, **kwargs):
         user = get_current_user()
         if not user:
             return jsonify({'error': 'Authentication required'}), 401
         return f(user, *args, **kwargs)
-
     return decorated

@@ -58,6 +58,9 @@ def format_report_list_item(report, files=None):
 
 def user_has_report_access(user_id, sequence_id):
     """Return True if user owns a file linked to this report."""
+    from app_config import Config
+    if Config.DEMO_MODE:
+        return True
     query = """
         SELECT COUNT(*) as count
         FROM contains c

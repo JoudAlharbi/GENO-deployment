@@ -4,6 +4,7 @@ import { formatPercentEn } from "../utils/formatNumber";
 import "../styles/report.css";
 import { API_BASE_URL } from "../config/apiBase";
 import { authFetch } from "../services/api";
+import { DEMO_MODE } from "../config/demo";
 
 // Error Boundary Component - catches render errors and prevents blank page
 class ErrorBoundary extends Component {
@@ -177,13 +178,15 @@ export default function ViewReport() {
   // Load data on mount
   useEffect(() => {
     try {
-    const isLoggedIn =
-      localStorage.getItem("genoLoggedIn") === "true" ||
-      sessionStorage.getItem("genoLoggedIn") === "true";
-    if (!isLoggedIn) {
-      navigate("/login");
+    if (!DEMO_MODE) {
+      const isLoggedIn =
+        localStorage.getItem("genoLoggedIn") === "true" ||
+        sessionStorage.getItem("genoLoggedIn") === "true";
+      if (!isLoggedIn) {
+        navigate("/login");
         return;
       }
+    }
 
       // Try to get data from navigation state first, then sessionStorage
       let dataToUse = null;
