@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import GenoLabReportPDF from '../pdf/GenoLabReportPDF.jsx';
 import { formatPercentEn } from "../utils/formatNumber";
+import ReportPdfDownloadButton from "../components/ReportPdfDownloadButton";
 import { DEMO_MODE } from "../config/demo";
 
 /**
@@ -428,46 +427,7 @@ export default function Result() {
         gap: "15px",
         flexWrap: "wrap"
       }}>
-        <PDFDownloadLink
-          document={
-            <GenoLabReportPDF
-              sampleId={sequenceId}
-              laboratoryId={labUserId}
-              generatedAt={generatedAt}
-              riskLevel={riskLevel}
-              riskScore={scorePercent}
-              highImpactGenes={report.top_genes || []}
-              lowExpressionGenes={report.bottom_genes || []}
-              clinicalInterpretation={report.clinical_interpretation || null}
-              methodology={report.methodology || null}
-              // Legacy props for backward compatibility
-              summaryText={summaryText}
-              modelName={modelName}
-              totalGenesInModel={totalGenes}
-            />
-          }
-          fileName={`GENO_Report_${sequenceId || 'analysis'}.pdf`}
-        >
-          {({ loading }) => (
-            <button
-              disabled={loading}
-              style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#ffffff",
-                padding: "14px 30px",
-                borderRadius: "10px",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontSize: "0.9rem",
-                fontWeight: "500",
-                opacity: loading ? 0.7 : 1,
-                transition: "all 0.3s ease"
-              }}
-            >
-              {loading ? "Generating..." : "Download PDF"}
-            </button>
-          )}
-        </PDFDownloadLink>
+        <ReportPdfDownloadButton analysisResult={analysisResult} variant="result" />
         
         <button
           onClick={handleView}

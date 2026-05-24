@@ -2,9 +2,8 @@ import React, { useEffect, useState, Component } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { formatPercentEn } from "../utils/formatNumber";
 import "../styles/report.css";
-import { API_BASE_URL } from "../config/apiBase";
-import { authFetch } from "../services/api";
 import { DEMO_MODE } from "../config/demo";
+import ReportPdfDownloadButton from "../components/ReportPdfDownloadButton";
 
 // Error Boundary Component - catches render errors and prevents blank page
 class ErrorBoundary extends Component {
@@ -261,52 +260,6 @@ export default function ViewReport() {
     sessionStorage.removeItem("analysisResult");
     sessionStorage.removeItem("viewReportData");
     navigate("/load");
-  };
-
-  // Handle PDF download
-  const handleDownloadPDF = async () => {
-    console.log("[PDF] Button clicked");
-    try {
-      if (!dbSequenceId || dbSequenceId === "N/A") {
-        console.error("No valid dbSequenceId for PDF download:", dbSequenceId);
-        alert("Cannot download PDF: missing report ID.");
-        return;
-      }
-
-      console.log("[PDF] Download clicked. dbSequenceId =", dbSequenceId);
-
-      const response = await authFetch(
-        `${API_BASE_URL}/api/reports/${encodeURIComponent(dbSequenceId)}/pdf`,
-        { method: "GET" }
-      );
-
-      console.log("[PDF] Response status:", response.status);
-
-      if (!response.ok) {
-        let bodyText = "";
-        try {
-          bodyText = await response.text();
-        } catch (e) {
-          bodyText = "";
-        }
-        console.error("PDF download error body:", bodyText);
-        alert("PDF download failed. Please check the console (F12 → Console) for details.");
-        return;
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `GENO_Report_${dbSequenceId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("PDF download failed with exception:", err);
-      alert("PDF download failed. Please check the console for details.");
-    }
   };
 
   // Format date from ISO string
@@ -745,16 +698,14 @@ export default function ViewReport() {
         </p>
       </div>
 
-          {/* Download PDF Button */}
+          {/* Download PDF — same client-side GENO report as Result page */}
           <div className="report-download-container">
-          <button
-                type="button"
-                className="pdf-btn"
-                onClick={handleDownloadPDF}
-          >
-          Download PDF
-          </button>
-        </div>
+            <ReportPdfDownloadButton
+              analysisResult={analysisResult}
+              className="pdf-btn"
+              variant="report"
+            />
+          </div>
         </div>
       </div>
       </ErrorBoundary>
