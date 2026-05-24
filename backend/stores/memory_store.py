@@ -11,6 +11,7 @@ from threading import Lock
 from typing import Any, Optional
 
 from stores.demo_persistence import load_demo_state, save_demo_state
+from stores.demo_store_filters import is_fake_demo_report, sanitize_demo_state
 
 DEMO_USER_ID = 'demo'
 DEMO_EMAIL = 'demo@geno-lab.example'
@@ -63,13 +64,36 @@ def _ensure_demo_user():
 
 def _apply_state(data: dict[str, Any]) -> None:
     global _users, _dna_files, _uploads, _reports, _contains, _views
-    _users = data.get('users') or {}
-    _dna_files = data.get('dna_files') or {}
-    _uploads = data.get('uploads') or []
-    _reports = data.get('reports') or {}
-    _contains = data.get('contains') or []
-    _views = data.get('views') or []
+    cleaned, removed = sanitize_demo_state(data)
+    if removed:
+        print(f'[GENO] Removed {removed} fake/test demo report(s) from storage')
+    _users = cleaned.get('users') or {}
+    _dna_files = cleaned.get('dna_files') or {}
+    _uploads = cleaned.get('uploads') or []
+    _reports = cleaned.get('reports') or {}
+    _contains = cleaned.get('contains') or []
+    _views = cleaned.get('views') or []
     _ensure_demo_user()
+    if removed:
+        _persist()
+
+
+def purge_fake_demo_records() -> int:
+    """Remove fake/test reports from memory and persist. Returns count removed."""
+    with _lock:
+        before = len(_reports)
+        fake_ids = [
+            sid for sid, row in list(_reports.items())
+            if is_fake_demo_report(sid, row)
+        ]
+        for sid in fake_ids:
+            del _reports[sid]
+        _contains[:] = [c for c in _contains if c.get('sequence_id') not in fake_ids]
+        _views[:] = [v for v in _views if v.get('sequence_id') not in fake_ids]
+        removed = before - len(_reports)
+        if removed:
+            _persist()
+        return removed
 
 
 def init_store():
@@ -218,6 +242,20 @@ def create_report(
     pdf_path=None,
 ):
     with _lock:
+        draft = _row(
+            sequence_id=sequence_id,
+            accuracy=accuracy,
+            variant_info=variant_info,
+            fullname=fullname,
+            patientInfo=patient_info,
+            age=age,
+            gender=gender,
+            analysis_result=analysis_result,
+            pdf_path=pdf_path,
+        )
+        if is_fake_demo_report(sequence_id, draft):
+            print(f'[GENO] Blocked fake/test report from being saved: {sequence_id}')
+            return
         _reports[sequence_id] = _row(
             sequence_id=sequence_id,
             accuracy=accuracy,
