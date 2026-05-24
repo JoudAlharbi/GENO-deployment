@@ -30,6 +30,7 @@ genoproject/
 
 # Generated / runtime data
 backend/data/demo/
+backend/demo/demo_store.json
 backend/data/analyses.json
 backend/counts.txt
 counts.txt
