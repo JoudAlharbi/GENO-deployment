@@ -25,12 +25,12 @@ const FONT_MIN = {
 };
 
 const BASE = {
-  pagePadH: 22,
-  pagePadTop: 11,
+  pagePadH: 20,
+  pagePadTop: 8,
   pagePadBottom: 9,
   sectionGap: 3,
   panelGap: 3,
-  logoWidth: 100,
+  logoWidth: 128,
   maxGeneRowsCap: 4,
 };
 
@@ -60,7 +60,7 @@ export function computeAdaptiveLayout({
       maxGeneRows: Math.min(3, displayRows),
       typeScale: 1,
       spacingScale: 0.86,
-      logoWidth: 92,
+      logoWidth: 118,
       summaryMax: 260,
     };
   }
@@ -71,7 +71,7 @@ export function computeAdaptiveLayout({
       maxGeneRows: Math.min(4, displayRows),
       typeScale: 1,
       spacingScale: 0.93,
-      logoWidth: 96,
+      logoWidth: 122,
       summaryMax: 290,
     };
   }
@@ -135,41 +135,49 @@ export function createPdfStyles(layout) {
       width: '100%',
       maxWidth: '100%',
     },
-    labSubtitle: {
-      fontSize: fs(8.5, layout),
-      letterSpacing: 0.8,
-      textTransform: 'uppercase',
-      color: '#777777',
-      textAlign: 'center',
+    reportHeader: {
+      width: '100%',
       marginBottom: sp(3),
-      width: '100%',
     },
-    headerBlock: {
-      width: '100%',
-      marginBottom: sp(4),
+    headerMainRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       alignItems: 'center',
+      width: '100%',
+      marginBottom: sp(2),
     },
-    logoRow: {
-      width: '100%',
-      alignItems: 'center',
-      marginBottom: sp(4),
+    headerBrand: {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      flexGrow: 1,
+      flexShrink: 1,
+      paddingRight: sp(10),
+      maxWidth: '58%',
     },
     logo: {
       width: layout.logoWidth,
       height: 'auto',
+      marginBottom: sp(2),
     },
-    riskHeroRow: {
+    labSubtitle: {
+      fontSize: fs(7.5, layout),
+      letterSpacing: 1.2,
+      textTransform: 'uppercase',
+      color: '#777777',
+      textAlign: 'left',
+      marginBottom: 0,
+    },
+    headerRiskGroup: {
       flexDirection: 'row',
-      justifyContent: 'center',
       alignItems: 'stretch',
-      width: '100%',
+      flexShrink: 0,
     },
     riskBoxSpacer: {
-      width: sp(8),
+      width: sp(6),
     },
     riskLevelBox: {
-      paddingVertical: sp(5),
-      paddingHorizontal: sp(12),
+      paddingVertical: sp(4),
+      paddingHorizontal: sp(10),
       borderRadius: 3,
       borderWidth: 1,
       borderColor: '#f35a5a',
@@ -178,7 +186,8 @@ export function createPdfStyles(layout) {
       fontWeight: 'bold',
       fontSize: fs(10, layout),
       textAlign: 'center',
-      minWidth: scale(88, layout.typeScale),
+      minWidth: scale(78, layout.typeScale),
+      justifyContent: 'center',
     },
     riskLevelBoxLow: {
       borderColor: '#4caf50',
@@ -191,14 +200,15 @@ export function createPdfStyles(layout) {
       fontWeight: 'normal',
     },
     riskScoreBox: {
-      paddingVertical: sp(5),
-      paddingHorizontal: sp(12),
+      paddingVertical: sp(4),
+      paddingHorizontal: sp(10),
       borderRadius: 3,
       borderWidth: 1,
       borderColor: '#dddddd',
       backgroundColor: '#f9f9f9',
       textAlign: 'center',
-      minWidth: scale(88, layout.typeScale),
+      minWidth: scale(78, layout.typeScale),
+      justifyContent: 'center',
     },
     riskScoreValue: {
       fontSize: fs(16, layout),
@@ -211,28 +221,29 @@ export function createPdfStyles(layout) {
       color: '#777777',
     },
     metaStrip: {
-      flexDirection: 'column',
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
       backgroundColor: '#fafafa',
       borderWidth: 1,
       borderColor: '#eeeeee',
       borderRadius: 4,
-      paddingVertical: sp(4),
-      paddingHorizontal: sp(10),
-      marginBottom: sp(4),
+      paddingVertical: sp(3),
+      paddingHorizontal: sp(8),
+      marginTop: 0,
+      marginBottom: sp(3),
       width: '100%',
     },
     metaItem: {
-      width: '100%',
-      marginBottom: sp(2),
-      paddingBottom: sp(2),
-      borderBottomWidth: 0.5,
-      borderBottomColor: '#EEEEEE',
-    },
-    metaItemLast: {
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: '30%',
+      minWidth: '26%',
       marginBottom: 0,
       paddingBottom: 0,
       borderBottomWidth: 0,
     },
+    metaItemLast: {},
     metaLabel: {
       fontSize: fs(7, layout),
       letterSpacing: 0.5,

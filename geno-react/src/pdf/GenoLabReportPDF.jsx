@@ -122,33 +122,35 @@ const GenoLabReportPDF = ({
     <Document>
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.pageInner}>
-          <Text style={styles.labSubtitle}>GENETIC ANALYSIS LABORATORY</Text>
-
-          <View style={styles.headerBlock}>
-            <View style={styles.logoRow}>
-              <Image src="/BlackLogo.png" style={styles.logo} />
-            </View>
-            <View style={styles.riskHeroRow}>
-              <View
-                style={[
-                  styles.riskLevelBox,
-                  isHighRisk ? null : styles.riskLevelBoxLow,
-                ]}
-              >
-                <Text>{safeRiskLevel.toUpperCase()}</Text>
-                <Text style={styles.riskLevelCaption}>RISK LEVEL</Text>
-              </View>
-              <View style={styles.riskBoxSpacer} />
-              <View style={styles.riskScoreBox}>
-                <Text style={styles.riskScoreValue}>
-                  {numericRiskScore.toFixed(1)}%
+          <View style={styles.reportHeader}>
+            <View style={styles.headerMainRow}>
+              <View style={styles.headerBrand}>
+                <Image src="/BlackLogo.png" style={styles.logo} />
+                <Text style={styles.labSubtitle}>
+                  GENETIC ANALYSIS LABORATORY
                 </Text>
-                <Text style={styles.riskScoreCaption}>RISK SCORE</Text>
+              </View>
+              <View style={styles.headerRiskGroup}>
+                <View
+                  style={[
+                    styles.riskLevelBox,
+                    isHighRisk ? null : styles.riskLevelBoxLow,
+                  ]}
+                >
+                  <Text>{safeRiskLevel.toUpperCase()}</Text>
+                  <Text style={styles.riskLevelCaption}>RISK LEVEL</Text>
+                </View>
+                <View style={styles.riskBoxSpacer} />
+                <View style={styles.riskScoreBox}>
+                  <Text style={styles.riskScoreValue}>
+                    {numericRiskScore.toFixed(1)}%
+                  </Text>
+                  <Text style={styles.riskScoreCaption}>RISK SCORE</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.metaStrip}>
+            <View style={styles.metaStrip}>
             <View style={styles.metaItem}>
               <Text style={styles.metaLabel}>Sample ID</Text>
               <Text style={styles.metaValue} wrap>
@@ -161,11 +163,12 @@ const GenoLabReportPDF = ({
                 {finalLaboratoryId}
               </Text>
             </View>
-            <View style={[styles.metaItem, styles.metaItemLast]}>
+            <View style={styles.metaItem}>
               <Text style={styles.metaLabel}>Generated</Text>
               <Text style={styles.metaValue} wrap>
                 {formatDateTime(generatedAt)}
               </Text>
+            </View>
             </View>
           </View>
 
