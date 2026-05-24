@@ -233,44 +233,9 @@ img {
   flex-direction: column;
 }
 
-/* ── Load / Upload ────────────────────────────────────────── */
+/* ── Load / Upload (page padding only; layout restored in geno.css) ── */
 .load-content {
   padding: clamp(48px, 12vw, 80px) clamp(16px, 5vw, 24px) clamp(40px, 8vw, 60px);
-  width: 100%;
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-.file-upload-section {
-  width: 100%;
-  max-width: 100%;
-}
-
-.file-input-wrapper {
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  max-width: 100%;
-  gap: 12px;
-  padding: 0;
-}
-
-.file-path {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-.btn-browse,
-.btn-analyze {
-  width: 100%;
-  max-width: 100%;
-}
-
-.btn-analyze {
-  margin-top: 20px;
-  padding-left: 24px;
-  padding-right: 24px;
 }
 
 /* ── Result page ────────────────────────────────────────────── */
@@ -544,6 +509,38 @@ img {
   .report-table-wrap {
     margin-left: -4px;
     margin-right: -4px;
+  }
+}
+
+/* ── Load page: stack controls on narrow screens only ───────── */
+@media (max-width: 768px) {
+  .file-input-wrapper {
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .file-path {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .btn-browse {
+    width: 100%;
+  }
+
+  .btn-analyze {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 22px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .file-upload-section {
+    padding: 16px 18px;
   }
 }
 
