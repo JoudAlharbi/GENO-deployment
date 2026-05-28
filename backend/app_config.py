@@ -6,12 +6,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _BACKEND_ROOT = Path(__file__).resolve().parent
-_DATA_DIR = Path(os.getenv('DATA_DIR', str(_BACKEND_ROOT)))
+_DEMO_MODE_RAW = os.getenv('DEMO_MODE', 'true').lower() in ('true', '1', 'yes')
+_DATA_DIR_ENV = os.getenv('DATA_DIR', '').strip()
+
+# Render free-tier safety:
+# If DATA_DIR is unset (or still points to a legacy paid-disk path),
+# force demo runtime storage to /tmp/geno to avoid startup PermissionError.
+if _DEMO_MODE_RAW:
+    if (not _DATA_DIR_ENV) or _DATA_DIR_ENV.startswith('/var/'):
+        _DATA_DIR = Path('/tmp/geno')
+    else:
+        _DATA_DIR = Path(_DATA_DIR_ENV)
+else:
+    _DATA_DIR = Path(_DATA_DIR_ENV or str(_BACKEND_ROOT))
 
 
 class Config:
     # Portfolio demo: no PostgreSQL, no JWT (set DEMO_MODE=false to use full stack)
-    DEMO_MODE = os.getenv('DEMO_MODE', 'true').lower() in ('true', '1', 'yes')
+    DEMO_MODE = _DEMO_MODE_RAW
     DEMO_USER_ID = os.getenv('DEMO_USER_ID', 'demo')
     DATA_DIR = str(_DATA_DIR)
     BACKEND_ROOT = str(_BACKEND_ROOT)
@@ -34,7 +46,7 @@ class Config:
         or os.getenv('FLASK_ENV', '').lower() == 'production'
     )
 
-    # File Upload (use DATA_DIR on Render persistent disk if configured)
+    # File Upload/runtime storage root
     UPLOAD_FOLDER = str(_DATA_DIR / 'uploads')
     MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
     ALLOWED_EXTENSIONS = {'fasta', 'fa', 'fastq', 'fq', 'vcf', 'bam', 'sam', 'txt', 'ab1', 'csv'}

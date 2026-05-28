@@ -50,11 +50,11 @@ Recommended **free-tier** stack:
 | `FLASK_DEBUG` | `false` |
 | `PORT` | Set automatically by Render |
 
-Optional (persistent uploads/reports on paid disk):
+Optional (free-tier runtime storage override):
 
 | Variable | Value |
 |----------|--------|
-| `DATA_DIR` | Mount path, e.g. `/var/data` |
+| `DATA_DIR` | Runtime path, e.g. `/tmp/geno` |
 
 ### Initialize database on Render Postgres
 
