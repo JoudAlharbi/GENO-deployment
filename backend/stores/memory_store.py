@@ -10,7 +10,7 @@ from datetime import datetime
 from threading import Lock
 from typing import Any, Optional
 
-from stores.demo_persistence import load_demo_state, save_demo_state
+from stores.demo_persistence import load_demo_state, load_seed_state, save_demo_state
 from stores.demo_store_filters import is_fake_demo_report, sanitize_demo_state
 
 DEMO_USER_ID = 'demo'
@@ -97,7 +97,7 @@ def purge_fake_demo_records() -> int:
 
 
 def init_store():
-    """Load persisted demo data or seed empty store."""
+    """Load runtime demo data, falling back to bundled seed data."""
     global _loaded
     with _lock:
         if _loaded:
@@ -105,14 +105,20 @@ def init_store():
         stored = load_demo_state()
         if stored:
             _apply_state(stored)
-            print(
-                f'[GENO] Demo store loaded: {len(_reports)} report(s), '
-                f'{len(_uploads)} upload(s)'
-            )
         else:
             _ensure_demo_user()
-            _persist()
-            print('[GENO] Demo store initialized (new persistent file)')
+
+        # Guarantee populated shared demo experience on startup.
+        if not _reports:
+            seed = load_seed_state()
+            if seed:
+                _apply_state(seed)
+
+        _persist()
+        print(
+            f'[GENO] Demo store loaded: {len(_reports)} report(s), '
+            f'{len(_uploads)} upload(s)'
+        )
         _loaded = True
 
 

@@ -14,6 +14,7 @@ class Config:
     DEMO_MODE = os.getenv('DEMO_MODE', 'true').lower() in ('true', '1', 'yes')
     DEMO_USER_ID = os.getenv('DEMO_USER_ID', 'demo')
     DATA_DIR = str(_DATA_DIR)
+    BACKEND_ROOT = str(_BACKEND_ROOT)
 
     # Database
     DATABASE_URL = os.getenv("DATABASE_URL")

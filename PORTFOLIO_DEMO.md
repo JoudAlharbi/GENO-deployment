@@ -16,17 +16,24 @@ The project runs in **open demo mode** by default: no login, no PostgreSQL, in-m
 
 No `DATABASE_URL` required.
 
-### Persistent demo data (recommended on Render)
+### Free-tier shared demo data
 
-Set a persistent disk and point `DATA_DIR` at it so uploads and analyses survive redeploys:
+This project uses a **seeded demo store** that is bundled in the repository:
 
-```yaml
-envVars:
-  - key: DATA_DIR
-    value: /var/data
-```
+- Seed (always loaded on startup): `backend/demo/demo_store.json`
+- Runtime writes (ephemeral): `{DATA_DIR}/demo_runtime_store.json`
 
-Demo analyses/metadata are stored in `{DATA_DIR}/demo/demo_store.json`. All visitors share the same demo history on that instance.
+On every app start, runtime data is loaded first; if empty/missing, the seeded store is loaded automatically so dashboard/history never starts empty. This works on free Render with no disk add-on.
+
+| File | Purpose |
+|------|---------|
+| `backend/demo/demo_store.json` | Shared default analyses for all visitors |
+| `{DATA_DIR}/uploads/<user_id>/` | Uploaded CSVs for the running instance |
+| `{DATA_DIR}/reports/<user_id>/` | Generated PDFs for the running instance |
+
+Optional overrides:
+- `DEMO_SEED_STORE_PATH=/path/to/demo_store.json`
+- `DEMO_RUNTIME_STORE_PATH=/tmp/geno/demo_runtime_store.json`
 
 ### Vercel (frontend)
 

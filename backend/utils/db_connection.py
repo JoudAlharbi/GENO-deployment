@@ -40,16 +40,18 @@ def check_database_connection():
     Returns (ok: bool, message: str, details: dict|None)
     """
     if Config.DEMO_MODE:
-        from stores.demo_persistence import get_demo_store_path
+        from stores.demo_persistence import get_runtime_store_path, get_seed_store_path
         from stores import memory_store
 
-        path = get_demo_store_path()
+        runtime_path = get_runtime_store_path()
+        seed_path = get_seed_store_path()
         return True, 'demo_mode', {
-            'database': 'demo-json',
+            'database': 'demo-json-seeded',
             'postgres_version': 'N/A (portfolio demo)',
-            'host': str(path.parent),
+            'host': str(runtime_path.parent),
             'port': '0',
-            'demo_store': str(path),
+            'demo_runtime_store': str(runtime_path),
+            'demo_seed_store': str(seed_path),
             'report_count': len(memory_store.get_all_reports()),
         }
     try:

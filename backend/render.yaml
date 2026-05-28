@@ -1,4 +1,5 @@
 # Render Blueprint — portfolio demo (no Postgres required)
+# Free-tier compatible: bundled seed data + ephemeral runtime store.
 services:
   - type: web
     name: geno-api
@@ -12,5 +13,7 @@ services:
         value: "3.12.0"
       - key: DEMO_MODE
         value: "true"
+      - key: DATA_DIR
+        value: /tmp/geno
       - key: CORS_ORIGINS
         sync: false
