@@ -11,9 +11,1085 @@
       "failedloginattempts": 0
     }
   },
-  "dna_files": {},
-  "uploads": [],
-  "reports": {},
-  "contains": [],
+  "dna_files": {
+    "FILE-DEMO-32": {
+      "fileid": "FILE-DEMO-32",
+      "original_name": "SEQ-32A7F1C9B4D2.csv",
+      "stored_name": "FILE-DEMO-32.csv",
+      "filepath": "seed://FILE-DEMO-32.csv",
+      "size": 4835,
+      "extension": "csv",
+      "upload_date": "2026-05-28T10:15:00Z"
+    },
+    "FILE-DEMO-22": {
+      "fileid": "FILE-DEMO-22",
+      "original_name": "SEQ-22B5E8A1C7F3.csv",
+      "stored_name": "FILE-DEMO-22.csv",
+      "filepath": "seed://FILE-DEMO-22.csv",
+      "size": 4821,
+      "extension": "csv",
+      "upload_date": "2026-05-26T14:30:00Z"
+    },
+    "FILE-DEMO-16": {
+      "fileid": "FILE-DEMO-16",
+      "original_name": "SEQ-16C9D2F4A8B1.csv",
+      "stored_name": "FILE-DEMO-16.csv",
+      "filepath": "seed://FILE-DEMO-16.csv",
+      "size": 4851,
+      "extension": "csv",
+      "upload_date": "2026-05-24T09:05:00Z"
+    },
+    "FILE-DEMO-25": {
+      "fileid": "FILE-DEMO-25",
+      "original_name": "SEQ-25E1A7B3C9D6.csv",
+      "stored_name": "FILE-DEMO-25.csv",
+      "filepath": "seed://FILE-DEMO-25.csv",
+      "size": 4842,
+      "extension": "csv",
+      "upload_date": "2026-05-21T16:40:00Z"
+    },
+    "FILE-DEMO-18": {
+      "fileid": "FILE-DEMO-18",
+      "original_name": "SEQ-18F4B2D7A1C5.csv",
+      "stored_name": "FILE-DEMO-18.csv",
+      "filepath": "seed://FILE-DEMO-18.csv",
+      "size": 4845,
+      "extension": "csv",
+      "upload_date": "2026-05-18T11:20:00Z"
+    },
+    "FILE-DEMO-28": {
+      "fileid": "FILE-DEMO-28",
+      "original_name": "SEQ-28A9C3E6B1F4.csv",
+      "stored_name": "FILE-DEMO-28.csv",
+      "filepath": "seed://FILE-DEMO-28.csv",
+      "size": 4845,
+      "extension": "csv",
+      "upload_date": "2026-05-15T13:50:00Z"
+    },
+    "FILE-DEMO-06": {
+      "fileid": "FILE-DEMO-06",
+      "original_name": "SEQ-06D7B1F9A2C8.csv",
+      "stored_name": "FILE-DEMO-06.csv",
+      "filepath": "seed://FILE-DEMO-06.csv",
+      "size": 4848,
+      "extension": "csv",
+      "upload_date": "2026-05-12T08:35:00Z"
+    },
+    "FILE-DEMO-05": {
+      "fileid": "FILE-DEMO-05",
+      "original_name": "SEQ-05B3F8A1D6C2.csv",
+      "stored_name": "FILE-DEMO-05.csv",
+      "filepath": "seed://FILE-DEMO-05.csv",
+      "size": 4843,
+      "extension": "csv",
+      "upload_date": "2026-05-09T15:10:00Z"
+    }
+  },
+  "uploads": [
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-32",
+      "upload_date": "2026-05-28T10:15:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-22",
+      "upload_date": "2026-05-26T14:30:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-16",
+      "upload_date": "2026-05-24T09:05:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-25",
+      "upload_date": "2026-05-21T16:40:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-18",
+      "upload_date": "2026-05-18T11:20:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-28",
+      "upload_date": "2026-05-15T13:50:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-06",
+      "upload_date": "2026-05-12T08:35:00Z"
+    },
+    {
+      "userid": "demo",
+      "fileid": "FILE-DEMO-05",
+      "upload_date": "2026-05-09T15:10:00Z"
+    }
+  ],
+  "reports": {
+    "SEQ-32A7F1C9B4D2": {
+      "sequence_id": "SEQ-32A7F1C9B4D2",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-32A7F1C9B4D2",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-32A7F1C9B4D2",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-28T10:15:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "HIGH",
+          "risk_score_percent": 99.81,
+          "risk_score_raw": 0.998143886012485,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - HIGH RISK",
+          "summary_text": "The genetic analysis indicates a HIGH addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 99.81%. This score exceeds the 75% threshold, indicating elevated risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000248359.2",
+              "expression": 19.0,
+              "impact": "Positive risk contributor (coef: 0.310)",
+              "contribution": 1.19
+            },
+            {
+              "gene": "ENSG00000267048.1",
+              "expression": 8.0,
+              "impact": "Positive risk contributor (coef: 0.494)",
+              "contribution": 0.7335
+            },
+            {
+              "gene": "ENSG00000227591.6",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.329)",
+              "contribution": 0.4925
+            },
+            {
+              "gene": "ENSG00000253400.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.147)",
+              "contribution": 0.4775
+            },
+            {
+              "gene": "ENSG00000231961.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.235)",
+              "contribution": 0.4636
+            },
+            {
+              "gene": "ENSG00000287845.1",
+              "expression": 3.0,
+              "impact": "Positive risk contributor (coef: 0.277)",
+              "contribution": 0.4337
+            },
+            {
+              "gene": "ENSG00000279507.1",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.137)",
+              "contribution": 0.4187
+            },
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.389)",
+              "contribution": 0.4086
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000226216.1",
+              "expression": 12.0,
+              "impact": "Positive risk contributor (coef: 0.087)",
+              "contribution": 0.3775
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 34.7975,
+            "median_expression": 0.0,
+            "std_expression": 163.5721,
+            "min_expression": 0.0,
+            "max_expression": 1783.0,
+            "genes_above_mean": 24,
+            "genes_below_mean": 213
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-32A7F1C9B4D2",
+          "risk_level": "HIGH",
+          "score_percent": 99.81,
+          "score_raw": 0.998143886012485,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-28T10:15:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-28T10:15:00Z"
+    },
+    "SEQ-22B5E8A1C7F3": {
+      "sequence_id": "SEQ-22B5E8A1C7F3",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-22B5E8A1C7F3",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-22B5E8A1C7F3",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-26T14:30:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "HIGH",
+          "risk_score_percent": 94.64,
+          "risk_score_raw": 0.9464258812013066,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - HIGH RISK",
+          "summary_text": "The genetic analysis indicates a HIGH addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 94.64%. This score exceeds the 75% threshold, indicating elevated risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000196893.3",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.129)",
+              "contribution": 0.894
+            },
+            {
+              "gene": "ENSG00000267048.1",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.494)",
+              "contribution": -0.6718
+            },
+            {
+              "gene": "ENSG00000287845.1",
+              "expression": 3.0,
+              "impact": "Positive risk contributor (coef: 0.277)",
+              "contribution": 0.4337
+            },
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.389)",
+              "contribution": 0.4086
+            },
+            {
+              "gene": "ENSG00000227495.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.236)",
+              "contribution": -0.4012
+            },
+            {
+              "gene": "ENSG00000286543.1",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: -0.305)",
+              "contribution": 0.3373
+            },
+            {
+              "gene": "ENSG00000229758.2",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.172)",
+              "contribution": 0.3198
+            },
+            {
+              "gene": "ENSG00000230226.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.153)",
+              "contribution": 0.3125
+            },
+            {
+              "gene": "ENSG00000271138.1",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.301)",
+              "contribution": 0.2442
+            },
+            {
+              "gene": "ENSG00000227591.6",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: -0.329)",
+              "contribution": 0.2354
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 28.0675,
+            "median_expression": 0.0,
+            "std_expression": 125.6589,
+            "min_expression": 0.0,
+            "max_expression": 1330.0,
+            "genes_above_mean": 23,
+            "genes_below_mean": 214
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-22B5E8A1C7F3",
+          "risk_level": "HIGH",
+          "score_percent": 94.64,
+          "score_raw": 0.9464258812013066,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-26T14:30:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-26T14:30:00Z"
+    },
+    "SEQ-16C9D2F4A8B1": {
+      "sequence_id": "SEQ-16C9D2F4A8B1",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-16C9D2F4A8B1",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-16C9D2F4A8B1",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-24T09:05:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "HIGH",
+          "risk_score_percent": 90.87,
+          "risk_score_raw": 0.9086836858412127,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - HIGH RISK",
+          "summary_text": "The genetic analysis indicates a HIGH addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 90.87%. This score exceeds the 75% threshold, indicating elevated risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000230226.1",
+              "expression": 4.0,
+              "impact": "Positive risk contributor (coef: 0.153)",
+              "contribution": 1.4049
+            },
+            {
+              "gene": "ENSG00000233085.5",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.290)",
+              "contribution": 1.2136
+            },
+            {
+              "gene": "ENSG00000230836.1",
+              "expression": 3.0,
+              "impact": "Negative risk contributor (coef: -0.110)",
+              "contribution": -0.5375
+            },
+            {
+              "gene": "ENSG00000253400.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.147)",
+              "contribution": 0.4775
+            },
+            {
+              "gene": "ENSG00000235560.4",
+              "expression": 42.0,
+              "impact": "Negative risk contributor (coef: -0.184)",
+              "contribution": -0.4079
+            },
+            {
+              "gene": "ENSG00000259485.2",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.223)",
+              "contribution": -0.4052
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000132000.14",
+              "expression": 20.0,
+              "impact": "Positive risk contributor (coef: 0.108)",
+              "contribution": 0.2927
+            },
+            {
+              "gene": "ENSG00000185974.7",
+              "expression": 3.0,
+              "impact": "Positive risk contributor (coef: -0.299)",
+              "contribution": 0.2702
+            },
+            {
+              "gene": "ENSG00000277999.1",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.298)",
+              "contribution": 0.2638
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 87.3797,
+            "median_expression": 0.0,
+            "std_expression": 416.3204,
+            "min_expression": 0.0,
+            "max_expression": 4589.0,
+            "genes_above_mean": 24,
+            "genes_below_mean": 213
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-16C9D2F4A8B1",
+          "risk_level": "HIGH",
+          "score_percent": 90.87,
+          "score_raw": 0.9086836858412127,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-24T09:05:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-24T09:05:00Z"
+    },
+    "SEQ-25E1A7B3C9D6": {
+      "sequence_id": "SEQ-25E1A7B3C9D6",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-25E1A7B3C9D6",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-25E1A7B3C9D6",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-21T16:40:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "HIGH",
+          "risk_score_percent": 79.66,
+          "risk_score_raw": 0.7966351466796394,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - HIGH RISK",
+          "summary_text": "The genetic analysis indicates a HIGH addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 79.66%. This score exceeds the 75% threshold, indicating elevated risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000267048.1",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.494)",
+              "contribution": -0.6718
+            },
+            {
+              "gene": "ENSG00000283776.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.114)",
+              "contribution": 0.5535
+            },
+            {
+              "gene": "ENSG00000231961.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.235)",
+              "contribution": 0.4636
+            },
+            {
+              "gene": "ENSG00000286543.1",
+              "expression": 10.0,
+              "impact": "Negative risk contributor (coef: -0.305)",
+              "contribution": -0.4106
+            },
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.389)",
+              "contribution": 0.4086
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000272164.1",
+              "expression": 1.0,
+              "impact": "Negative risk contributor (coef: -0.197)",
+              "contribution": -0.2679
+            },
+            {
+              "gene": "ENSG00000268592.3",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.272)",
+              "contribution": 0.2565
+            },
+            {
+              "gene": "ENSG00000280288.1",
+              "expression": 7.0,
+              "impact": "Negative risk contributor (coef: -0.197)",
+              "contribution": -0.1999
+            },
+            {
+              "gene": "ENSG00000279507.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.137)",
+              "contribution": 0.1942
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 60.0591,
+            "median_expression": 0.0,
+            "std_expression": 269.1731,
+            "min_expression": 0.0,
+            "max_expression": 3091.0,
+            "genes_above_mean": 24,
+            "genes_below_mean": 213
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-25E1A7B3C9D6",
+          "risk_level": "HIGH",
+          "score_percent": 79.66,
+          "score_raw": 0.7966351466796394,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-21T16:40:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-21T16:40:00Z"
+    },
+    "SEQ-18F4B2D7A1C5": {
+      "sequence_id": "SEQ-18F4B2D7A1C5",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-18F4B2D7A1C5",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-18F4B2D7A1C5",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-18T11:20:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "LOW",
+          "risk_score_percent": 67.43,
+          "risk_score_raw": 0.6742662125576853,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - LOW RISK",
+          "summary_text": "The genetic analysis indicates a LOW addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 67.43%. This score is below the 75% threshold, indicating lower risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000166145.15",
+              "expression": 29.0,
+              "impact": "Positive risk contributor (coef: 0.533)",
+              "contribution": 1.2529
+            },
+            {
+              "gene": "ENSG00000259188.6",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.205)",
+              "contribution": 0.5915
+            },
+            {
+              "gene": "ENSG00000270429.1",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.056)",
+              "contribution": 0.4101
+            },
+            {
+              "gene": "ENSG00000110243.12",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.157)",
+              "contribution": 0.4014
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000280288.1",
+              "expression": 10.0,
+              "impact": "Negative risk contributor (coef: -0.197)",
+              "contribution": -0.366
+            },
+            {
+              "gene": "ENSG00000260102.2",
+              "expression": 1.0,
+              "impact": "Negative risk contributor (coef: -0.155)",
+              "contribution": -0.3615
+            },
+            {
+              "gene": "ENSG00000248359.2",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.310)",
+              "contribution": -0.3248
+            },
+            {
+              "gene": "ENSG00000235560.4",
+              "expression": 36.0,
+              "impact": "Negative risk contributor (coef: -0.184)",
+              "contribution": -0.2793
+            },
+            {
+              "gene": "ENSG00000281490.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.102)",
+              "contribution": -0.2549
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 59.27,
+            "median_expression": 0.0,
+            "std_expression": 272.8655,
+            "min_expression": 0.0,
+            "max_expression": 3129.0,
+            "genes_above_mean": 27,
+            "genes_below_mean": 210
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-18F4B2D7A1C5",
+          "risk_level": "LOW",
+          "score_percent": 67.43,
+          "score_raw": 0.6742662125576853,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-18T11:20:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-18T11:20:00Z"
+    },
+    "SEQ-28A9C3E6B1F4": {
+      "sequence_id": "SEQ-28A9C3E6B1F4",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-28A9C3E6B1F4",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-28A9C3E6B1F4",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-15T13:50:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "LOW",
+          "risk_score_percent": 46.67,
+          "risk_score_raw": 0.4666681217747512,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - LOW RISK",
+          "summary_text": "The genetic analysis indicates a LOW addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 46.67%. This score is below the 75% threshold, indicating lower risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000279657.1",
+              "expression": 5.0,
+              "impact": "Negative risk contributor (coef: -0.203)",
+              "contribution": -0.8886
+            },
+            {
+              "gene": "ENSG00000225972.1",
+              "expression": 34.0,
+              "impact": "Negative risk contributor (coef: -0.289)",
+              "contribution": -0.8099
+            },
+            {
+              "gene": "ENSG00000287845.1",
+              "expression": 4.0,
+              "impact": "Positive risk contributor (coef: 0.277)",
+              "contribution": 0.6375
+            },
+            {
+              "gene": "ENSG00000271138.1",
+              "expression": 4.0,
+              "impact": "Negative risk contributor (coef: -0.301)",
+              "contribution": -0.5009
+            },
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.389)",
+              "contribution": 0.4086
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000256211.1",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.133)",
+              "contribution": 0.3434
+            },
+            {
+              "gene": "ENSG00000248646.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.242)",
+              "contribution": -0.2743
+            },
+            {
+              "gene": "ENSG00000277350.2",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: 0.255)",
+              "contribution": 0.2393
+            },
+            {
+              "gene": "ENSG00000273044.1",
+              "expression": 0.0,
+              "impact": "Positive risk contributor (coef: -0.198)",
+              "contribution": 0.1917
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 59.4684,
+            "median_expression": 0.0,
+            "std_expression": 267.037,
+            "min_expression": 0.0,
+            "max_expression": 2649.0,
+            "genes_above_mean": 24,
+            "genes_below_mean": 213
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-28A9C3E6B1F4",
+          "risk_level": "LOW",
+          "score_percent": 46.67,
+          "score_raw": 0.4666681217747512,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-15T13:50:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-15T13:50:00Z"
+    },
+    "SEQ-06D7B1F9A2C8": {
+      "sequence_id": "SEQ-06D7B1F9A2C8",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-06D7B1F9A2C8",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-06D7B1F9A2C8",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-12T08:35:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "LOW",
+          "risk_score_percent": 30.19,
+          "risk_score_raw": 0.30193186567968994,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - LOW RISK",
+          "summary_text": "The genetic analysis indicates a LOW addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 30.19%. This score is below the 75% threshold, indicating lower risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000166145.15",
+              "expression": 42.0,
+              "impact": "Positive risk contributor (coef: 0.533)",
+              "contribution": 2.2429
+            },
+            {
+              "gene": "ENSG00000220248.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.274)",
+              "contribution": 1.0209
+            },
+            {
+              "gene": "ENSG00000259485.2",
+              "expression": 3.0,
+              "impact": "Negative risk contributor (coef: -0.223)",
+              "contribution": -0.673
+            },
+            {
+              "gene": "ENSG00000272164.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.197)",
+              "contribution": -0.6096
+            },
+            {
+              "gene": "ENSG00000185974.7",
+              "expression": 12.0,
+              "impact": "Negative risk contributor (coef: -0.299)",
+              "contribution": -0.5746
+            },
+            {
+              "gene": "ENSG00000277999.1",
+              "expression": 4.0,
+              "impact": "Negative risk contributor (coef: -0.298)",
+              "contribution": -0.4593
+            },
+            {
+              "gene": "ENSG00000227495.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: -0.236)",
+              "contribution": -0.4012
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000185758.9",
+              "expression": 1.0,
+              "impact": "Negative risk contributor (coef: -0.112)",
+              "contribution": -0.3637
+            },
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 4.0,
+              "impact": "Negative risk contributor (coef: -0.389)",
+              "contribution": -0.352
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 87.789,
+            "median_expression": 0.0,
+            "std_expression": 395.3258,
+            "min_expression": 0.0,
+            "max_expression": 3725.0,
+            "genes_above_mean": 25,
+            "genes_below_mean": 212
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-06D7B1F9A2C8",
+          "risk_level": "LOW",
+          "score_percent": 30.19,
+          "score_raw": 0.30193186567968994,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-12T08:35:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-12T08:35:00Z"
+    },
+    "SEQ-05B3F8A1D6C2": {
+      "sequence_id": "SEQ-05B3F8A1D6C2",
+      "accuracy": 94.2,
+      "variant_info": "Addiction susceptibility panel",
+      "fullname": "Analysis SEQ-05B3F8A1D6C2",
+      "patientinfo": "De-identified gene-expression sample",
+      "age": null,
+      "gender": null,
+      "analysis_result": {
+        "report": {
+          "sample_id": "SEQ-05B3F8A1D6C2",
+          "laboratory_user_id": "demo",
+          "generated_at": "2026-05-09T15:10:00Z",
+          "model_name": "geno_enet_pipeline.pkl",
+          "model_version": "2.0",
+          "total_genes_in_model": 237,
+          "genes_analyzed": 237,
+          "risk_level": "LOW",
+          "risk_score_percent": 22.42,
+          "risk_score_raw": 0.22419729143993358,
+          "risk_threshold": 75.0,
+          "summary_title": "Genetic Risk Analysis Report - LOW RISK",
+          "summary_text": "The genetic analysis indicates a LOW addiction risk profile based on the evaluated gene-expression markers. The model analyzed 237 genetic markers and calculated a risk probability of 22.42%. This score is below the 75% threshold, indicating lower risk.",
+          "top_genes": [
+            {
+              "gene": "ENSG00000258137.6",
+              "expression": 6.0,
+              "impact": "Negative risk contributor (coef: -0.389)",
+              "contribution": -0.7323
+            },
+            {
+              "gene": "ENSG00000166145.15",
+              "expression": 21.0,
+              "impact": "Positive risk contributor (coef: 0.533)",
+              "contribution": 0.6437
+            },
+            {
+              "gene": "ENSG00000271138.1",
+              "expression": 4.0,
+              "impact": "Negative risk contributor (coef: -0.301)",
+              "contribution": -0.5009
+            },
+            {
+              "gene": "ENSG00000105668.8",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.671)",
+              "contribution": -0.386
+            },
+            {
+              "gene": "ENSG00000279466.1",
+              "expression": 1.0,
+              "impact": "Negative risk contributor (coef: -0.313)",
+              "contribution": -0.3409
+            },
+            {
+              "gene": "ENSG00000286543.1",
+              "expression": 2.0,
+              "impact": "Positive risk contributor (coef: -0.305)",
+              "contribution": 0.3373
+            },
+            {
+              "gene": "ENSG00000267048.1",
+              "expression": 2.0,
+              "impact": "Negative risk contributor (coef: 0.494)",
+              "contribution": -0.3205
+            },
+            {
+              "gene": "ENSG00000235560.4",
+              "expression": 37.0,
+              "impact": "Negative risk contributor (coef: -0.184)",
+              "contribution": -0.3007
+            },
+            {
+              "gene": "ENSG00000279507.1",
+              "expression": 1.0,
+              "impact": "Positive risk contributor (coef: 0.137)",
+              "contribution": 0.1942
+            },
+            {
+              "gene": "ENSG00000287845.1",
+              "expression": 0.0,
+              "impact": "Negative risk contributor (coef: 0.277)",
+              "contribution": -0.1776
+            }
+          ],
+          "bottom_genes": [],
+          "gene_stats": {
+            "mean_expression": 76.1899,
+            "median_expression": 0.0,
+            "std_expression": 341.85,
+            "min_expression": 0.0,
+            "max_expression": 3453.0,
+            "genes_above_mean": 22,
+            "genes_below_mean": 215
+          },
+          "methodology": {
+            "algorithm": "Elastic Net Logistic Regression",
+            "preprocessing": "StandardScaler normalization",
+            "feature_selection": "SelectKBest with f_classif",
+            "training_samples": "Gene expression dataset",
+            "validation": "Cross-validation"
+          }
+        },
+        "result": {
+          "sequence_id": "SEQ-05B3F8A1D6C2",
+          "risk_level": "LOW",
+          "score_percent": 22.42,
+          "score_raw": 0.22419729143993358,
+          "model_used": "geno_enet_pipeline.pkl",
+          "genes_used": 237,
+          "created_at": "2026-05-09T15:10:00Z"
+        }
+      },
+      "pdf_path": null,
+      "saved_date": "2026-05-09T15:10:00Z"
+    }
+  },
+  "contains": [
+    {
+      "sequence_id": "SEQ-32A7F1C9B4D2",
+      "fileid": "FILE-DEMO-32"
+    },
+    {
+      "sequence_id": "SEQ-22B5E8A1C7F3",
+      "fileid": "FILE-DEMO-22"
+    },
+    {
+      "sequence_id": "SEQ-16C9D2F4A8B1",
+      "fileid": "FILE-DEMO-16"
+    },
+    {
+      "sequence_id": "SEQ-25E1A7B3C9D6",
+      "fileid": "FILE-DEMO-25"
+    },
+    {
+      "sequence_id": "SEQ-18F4B2D7A1C5",
+      "fileid": "FILE-DEMO-18"
+    },
+    {
+      "sequence_id": "SEQ-28A9C3E6B1F4",
+      "fileid": "FILE-DEMO-28"
+    },
+    {
+      "sequence_id": "SEQ-06D7B1F9A2C8",
+      "fileid": "FILE-DEMO-06"
+    },
+    {
+      "sequence_id": "SEQ-05B3F8A1D6C2",
+      "fileid": "FILE-DEMO-05"
+    }
+  ],
   "views": []
 }
