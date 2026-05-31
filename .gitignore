@@ -41,3 +41,17 @@ counts.txt
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Compiled Python
+*.pyc
+*.pyo
+*.pyd
+
+# Personal dev notes / scratch files (never publish)
+**/!!!*README*.txt
+*.local.md
+NOTES.local*
+
+# Temporary sample intake / private datasets
+backend/_sample_intake/
+**/samples/*.csv
